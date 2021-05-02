@@ -14,8 +14,9 @@ Requires node js. In the project folder:
 
 `npm install -g typescript`
 `npm install`
+`tsc`
 
-Then edit the config.json file to your specific needs.
+Then create a `config.json` file for your specific needs.
 
 ## config.json file
 The program takes its instructions from a file named `config.json`. Look at the `config_example.json` file and build your own. The rules are somewhat human-readable.
