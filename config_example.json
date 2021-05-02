@@ -1,0 +1,137 @@
+{
+    "intervalmins": 23,
+    "hive": {
+        "constants": {
+            "hivereserve": 100,
+            "hbdreserve": 20,
+            "hivemargin": 1,
+            "honeyhbdreserve": 50
+        },
+        "apinode": [ "https://api.hive.blog", "https://hived.privex.com" ],
+        "accounts": {
+            "eturnerx": {           "wifp": "",
+                                    "wifa": "" },
+            "eturnerx-dbuzz": {     "wifp": "",
+                                    "wifa": "" },
+            "eturnerx-honey": {     "wifp": "",
+                                    "wifa": "" },
+            "msp-makeaminnow": {    "wifp": "",
+                                    "wifa": "" }
+        },
+        "rules": [
+            {
+                "comment": "Distribute HIVE from @eturnerx over a reserve",
+                "if": "eturnerx.hive_balance > (hivereserve + hivemargin)",
+                "then": [
+                    "transfer ((eturnerx.hive_balance - hivereserve) * 0.75) HIVE from eturnerx to investegg",
+                    "transfer ((eturnerx.hive_balance - hivereserve) * 0.10) HIVE from eturnerx to 'eturnerx-vault'",
+                    "transfer ((eturnerx.hive_balance - hivereserve) * 0.05) HIVE from eturnerx to 'eturnerx-voices'",
+                    "stake ((eturnerx.hive_balance - hivereserve) * 0.05) HIVE from eturnerx to 'eturnerx-dbuzz'",
+                    "stake ((eturnerx.hive_balance - hivereserve) * 0.05) HIVE from eturnerx"
+                ]
+            }, {
+                "comment": "Distribute HBD from @eturnerx when over 20 HBD",
+                "if": "eturnerx.hbd_balance > (hbdreserve + hivemargin)",
+                "then": [
+                    "transfer ((eturnerx.hbd_balance - hbdreserve) * 0.80) HBD from eturnerx to investegg",
+                    "transfer ((eturnerx.hbd_balance - hbdreserve) * 0.15) HBD from eturnerx to eturnerx-vault",
+                    "transfer ((eturnerx.hbd_balance - hbdreserve) * 0.05) HBD from eturnerx to eturnerx-voices"
+                ]
+            }, {
+                "comment": "Distribute HIVE from @eturnerx-dbuzz",
+                "if": "'eturnerx-dbuzz.hive_balance' > 0.500",
+                "then": [
+                    "transfer ('eturnerx-dbuzz.hive_balance' * 0.75) HIVE from 'eturnerx-dbuzz' to eturnerx",
+                    "transfer ('eturnerx-dbuzz.hive_balance' * 0.05) HIVE from 'eturnerx-dbuzz' to 'eturnerx-voices'",
+                    "stake ('eturnerx-dbuzz.hive_balance' * 0.20) HIVE from 'eturnerx-dbuzz'"
+                ]
+            }, {
+                "comment": "Distribute HBD from @eturnerx-dbuzz",
+                "if": "'eturnerx-dbuzz.hbd_balance' > 0.050",
+                "then": "sell ('eturnerx-dbuzz.hbd_balance') HBD for HIVE from 'eturnerx-dbuzz' at market"
+            }, {
+                "name": "@eturnerx-honey HIVE->HBD",
+                "comment": "@eturnerx-honey try to hold a min amount of HBD",
+                "if": "('eturnerx-honey.hive_balance' > hivemargin) and ('eturnerx-honey.hbd_balance' < honeyhbdreserve)",
+                "then": "sell 1.000 HIVE for HBD from 'eturnerx-honey' at market"
+            }, {
+                "comment": "Power up any hive earned by @msp-makeaminnow",
+                "if": "'msp-makeaminnow.hive_balance' > 0.100",
+                "then": "stake ('msp-makeaminnow.hive_balance') HIVE from 'msp-makeaminnow'"
+            }, {
+                "comment": "Sell any HBD earned by @msp-makeaminnow",
+                "if": "'msp-makeaminnow.hbd_balance' > 0.100",
+                "then": "sell ('msp-makeaminnow.hbd_balance') HBD for HIVE from 'msp-makeaminnow' at market"
+            }
+        ]
+    },
+    "hiveengine": {
+        "constants": {
+            "hivereserve": 700,
+            "hivemargin": 2,
+            "palreserve": 1500,
+            "beereserve": 1200,
+            "hetokenmargin": 10
+        },
+        "sidechainuri": "https://api.hive-engine.com/rpc",
+        "accounts": {
+            "eturnerx":         { "from": "hive" },
+            "eturnerx-honey":   { "from": "hive" }
+        },
+        "rules": [
+            {
+                "comment": "@eturnerx withdraw SWAP.HIVE",
+                "if": "eturnerx.SWAP.HIVE_balance > (hivereserve + hivemargin)",
+                "then": "transfer (eturnerx.SWAP.HIVE_balance - hivereserve) SWAP.HIVE from eturnerx to 'hiveswap' memo \"q\""
+            }, {
+                "comment": "@eturnerx withdraw SWAP.HBD",
+                "if": "eturnerx.SWAP.HBD_balance > 1.000",
+                "then": "transfer (eturnerx.SWAP.HBD_balance) SWAP.HBD from eturnerx to 'graphene-swap' memo \"HBD eturnerx karaka1\""
+            }, {
+                "comment": "@eturnerx VIBES sell half, stake half",
+                "if": "eturnerx.VIBES_balance > 5.000",
+                "then": [
+                    "sell (eturnerx.VIBES_balance * 0.50) VIBES for SWAP.HIVE from eturnerx at market",
+                    "stake (eturnerx.VIBES_balance * 0.50) VIBES from eturnerx"
+                ]
+            }, {
+                "comment": "@eturnerx LEO sell 3/4, stake 1/4",
+                "if": "eturnerx.LEO_balance > hetokenmargin",
+                "then": [
+                    "sell (eturnerx.LEO_balance * 0.75) LEO for SWAP.HIVE from eturnerx at market",
+                    "stake (eturnerx.LEO_balance * 0.25) LEO from eturnerx"
+                ]
+            }, {
+                "comment": "@eturnerx PAL, keep some liquid, sell half, stake half",
+                "if": "eturnerx.PAL_balance > (palreserve + hetokenmargin)",
+                "then": [
+                    "sell ((eturnerx.PAL_balance - palreserve) * 0.5) PAL for SWAP.HIVE from eturnerx at market",
+                    "stake ((eturnerx.PAL_balance - palreserve) * 0.5) PAL from eturnerx"
+                ]
+            }, {
+                "comment": "@eturnerx BEE, keep some liquid, sell all",
+                "if": "eturnerx.BEE_balance > (beereserve + hetokenmargin)",
+                "then": "sell (eturnerx.BEE_balance - 1200) BEE for SWAP.HIVE from eturnerx at market"
+            }, {
+                "comment": "@eturnerx MPATH xfer to @eturnerx-dbuzz",
+                "if": "eturnerx.MPATH_balance > 5001.000",
+                "then": "transfer (eturnerx.MPATH_balance - 5000) MPATH from eturnerx to 'eturnerx-dbuzz'"
+            }, {
+                "comment": "@eturnerx-honey sell BEE",
+                "if": "'eturnerx-honey.BEE_balance' > hetokenmargin",
+                "then": "sell ('eturnerx-honey.BEE_balance') BEE for SWAP.HIVE from 'eturnerx-honey' at market"
+            }, {
+                "comment": "@eturnerx-honey stake WORKERBEE",
+                "if": "'eturnerx-honey.WORKERBEE_balance' > 0.100",
+                "then": "stake ('eturnerx-honey.WORKERBEE_balance') WORKERBEE from 'eturnerx-honey'"
+            }, {
+                "comment": "@eturnerx-honey deal with the SWAP.HIVE, sell half, withdraw half",
+                "if": "'eturnerx-honey.SWAP.HIVE_balance' > hetokenmargin",
+                "then": [
+                    "buy ('eturnerx-honey.SWAP.HIVE_balance' * 0.5) SWAP.HIVE of WORKERBEE from 'eturnerx-honey' at market",
+                    "transfer ('eturnerx-honey.SWAP.HIVE_balance' * 0.5) SWAP.HIVE from 'eturnerx-honey' to 'hiveswap' memo \"q\""
+                ]
+            }
+        ]
+    }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "Karaka",
+  "version": "0.0.1",
+  "description": "Hive and Hive-Engine clerk bot/automation tool",
+  "main": "dist/index.js",
+  "dependencies": {
+    "@hiveio/dhive": "^0.14.12",
+    "jison": "^0.4.18",
+    "sscjs": "^0.0.8"
+  },
+  "devDependencies": {
+    "@types/bytebuffer": "^5.0.42",
+    "typescript": "^4.2.2"
+  },
+  "peerDependencies": {
+    "@types/node": "^14.14.31"
+  },
+  "funding": {
+    "type": "buymeberries",
+    "url": "https://buymeberries.com/@eturnerx"
+  },
+  "repository": "github:Stormrose/karaka",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Emmanuel King Turner <eturnerx@gmail.com> (https://hive.blog/@eturnerx)",
+  "license": "MIT"
+}

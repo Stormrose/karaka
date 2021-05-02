@@ -1,3 +1,11 @@
+config.json
+monitor
+log.txt
+.vscode/
+package-lock.json
+dist/*
+run
+
 # Logs
 logs
 *.log
