@@ -32,7 +32,7 @@ The `if` clauses contains a conditional statement. In this case, the fact `'msp-
 The `then` clause is a single command string in this case but can also be a JSON array of commands strings that Karaka executes in order.
 
 ## Facts
-A fact generally takes the form of `accountanme`.`tokensymbol`_`type` where type is balance or stake. For example, `eturnerx.hive_balance` is the fact with the value of eturnerx's liquid hive balance.
+A fact generally takes the form of `accountname`.`tokensymbol`_`type` where type is balance or stake. For example, `eturnerx.hive_balance` is the fact with the value of eturnerx's liquid hive balance.
 GOTCHA: account names with a hyphen-in-them must use 'single quotes' around the fact name.
 There is a per-blockchain `constants` section where the user can hardcode facts. Constants simplify the administration of rules that reuse the same values, such as setting the reserve (keep-back) levels of a particular token.
 
@@ -87,7 +87,14 @@ This command buys a token with SWAP.HIVE on the hiveengine order book market. No
 prefix: warn
 pairs: message
 
-This command outputs a message to the log. The message must be enclosed in backslash-double-quotes. Be aware that Karaka suppresses repetition in logs.
+This command outputs a message to the log. The message must be enclosed in backslash-double-quotes. Be aware that Karaka suppresses frequent repetition in logs.
+
+## Tutorials
+Here are some tutorials that explain scenarios and features using examples.
+- [Karaka Tutorial #1: A Basic Tutorial config.json example](https://hive.blog/engine/@eturnerx/karaka-tutorial-1-a-basic-tutorial-configjson-example)
+- [Karaka Tutorial #2: Hive-Engine Tokens](https://hive.blog/engine/@eturnerx/d-buzz-not-working-on-5e8a5c9a21c53)
+- [Karaka Tutorial #3: Constants](https://hive.blog/engine/@eturnerx/karaka-tutorial-3-constants)
+
 
 ## License
 Copyright © 2021 Emmanuel King Turner - All Rights Reserved.
