@@ -82,7 +82,7 @@ export function parseConsequentCommand(c: ConsequentCommandString): ConsequentCo
             case 'memo':
             case 'message':
                 tidx++
-                memo = memo + ' ' + tokens2[tidx].substr(1, tokens2.length)
+                memo = memo + ' ' + tokens2[tidx].substr(1, tokens2[tidx].length)
                 while(tidx < tokens2.length - 1 && !tokens2[tidx].endsWith('"')) {
                     tidx++
                     memo = memo + ' ' + tokens2[tidx]
