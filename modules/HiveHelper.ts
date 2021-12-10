@@ -1,5 +1,5 @@
 import { Client as HiveClient, PrivateKey as HivePrivateKey, Asset as HiveAsset, ExtendedAccount as HiveExtendedAccount } from '@hiveio/dhive'
-import { CommandForExecution, Accounts, TransferCommand, WifKeys, StakeCommand, SellCommand, WarnCommand, Facts } from "../types/maintypes"
+import { CommandForExecution, Accounts, TransferCommand, WifKeys, StakeCommand, SellCommand, DepositCommand, WarnCommand, Facts } from "../types/maintypes"
 import QuietConsole from './QuietConsole'
 
 const quietconsole: QuietConsole = new QuietConsole('HIVE')
@@ -14,6 +14,8 @@ export async function gatherFacts(hiveaccounts: Accounts, hiveapiclient: HiveCli
         hivefacts[account.name + '.' + 'hive_balance'] = parseFloat((<string>account.balance).split(' ')[0])
         hivefacts[account.name + '.' + 'hbd_balance'] = parseFloat((<string>account.hbd_balance).split(' ')[0])
         hivefacts[account.name + '.' + 'vesting_shares'] = parseFloat((<string>account.vesting_shares).split(' ')[0])
+        hivefacts[account.name + '.' + 'hive_savings'] = parseFloat((<string>account.savings_balance).split(' ')[0])
+        hivefacts[account.name + '.' + 'hbd_savings'] = parseFloat((<string>account.savings_hbd_balance).split(' ')[0])
         hivefacts[account.name + '.' + 'reputation'] = parseFloat(<string>account.reputation)
         hivefacts[account.name + '.' + 'voting_power'] = account.voting_power
         quietconsole.log(
@@ -155,6 +157,47 @@ export async function executeCommand(cmd: CommandForExecution, orderid: number, 
             }
             break
 
+        case 'deposit':
+            let dc: DepositCommand = <DepositCommand>cmd.command
+            while(!cmd.success && cmd.retries > 0 && retriable) {
+                try {
+                    status = 'Buidling deposit object.'
+                    retriable = false
+                    op = [
+                        'transfer_to_savings',
+                        {
+                            to: dc.to,
+                            from: dc.from,
+                            amount: dc.amount + ' ' + dc.assettype,
+                            // amount: AmountAndAssetStringToObject(dc.amount, dc.assettype),
+                            memo: dc.memo
+                        }
+                    ]
+                    status = 'Getting active key.'
+                    wifa = getActiveKey(accounts, dc.from)
+                    status = 'Broadcasting deposit operation.'
+                    retriable = true
+                    if(execute) await hiveapiclient.broadcast.sendOperations([ op ], wifa)
+                    status = 'Logging success.'
+                    retriable = false
+                    quietconsole.log(
+                        undefined,
+                        (execute ? '' : 'EXECUTION-SUPPRESSED: ') +
+                        'DEPOSIT ' + op[1].amount + ' from ' + op[1].from + ' to ' + op[1].to
+                    )
+                    cmd.success = true
+                } catch(e){
+                    console.log('Command failed: ' + cmd.command.command + " in \n\t" + cmd.name + "\n\t" + JSON.stringify(cmd.command))
+                    console.log('\t' + JSON.stringify(op))
+                    console.log('STATUS: ' + status)
+                    console.log(e)
+                    if(retriable) console.log(cmd.retries + ' retries remain.')
+                    else console.log('Will not retry.')
+                    cmd.retries--
+                }
+            }
+            break
+
         case 'warn':
             // console.log(cmd.command)
             quietconsole.log(
@@ -180,3 +223,7 @@ export async function executeCommand(cmd: CommandForExecution, orderid: number, 
 function getActiveKey(accounts: Accounts, accountname: string): HivePrivateKey {
     return HivePrivateKey.fromString(<string>(<WifKeys>accounts[accountname]).wifa)
 }
+
+// function AmountAndAssetStringToObject(amount: any, assetstr: string): OperationHiveAsset {
+//     return <OperationHiveAsset>{ amount, ...AssetToNai[assetstr] }
+// }

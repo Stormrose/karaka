@@ -71,10 +71,18 @@ export interface BuyCommand extends ConsequentCommandWithAmount {
     toassettype: string
     at: string
 }
-// export interface WithdrawCommand extends ConsequentCommandWithAmount {
-//     command: "withdraw"
-//     from: string
-// }
+export interface DepositCommand extends ConsequentCommandWithAmount {
+    command: "deposit"
+    from: string
+    to: string
+    memo: string
+}
+export interface WithdrawCommand extends ConsequentCommandWithAmount {
+    command: "withdraw"
+    from: string
+    to: string
+    memo: string
+}
 export interface WarnCommand extends ConsequentCommand {
     command: "warn"
     message: string
@@ -95,7 +103,7 @@ export const DefaultTokenExchangeMap: { [index: string]: string } = {
 export const DefaultTokenDecimals: { [index: string]: number } = {
     'HIVE': 3, 'HBD': 3,
     'STEEM': 3, 'SBD': 3,
-    'BEE': 8, 'SWAP.HIVE': 3, 'SWAP.HBD': 3,  // SWAP.HIVE and HBD are 3dp to reduce rounding errors on withdrawals
+    'BEE': 8, 'SWAP.HIVE': 3, 'SWAP.HBD': 3,  // SWAP.HIVE and SWAP.HBD are 3dp to reduce rounding errors on withdrawals
     'PAL': 3, 'LEO': 3, 'VIBES': 8
 }
 export const AssetToNai: {[index: string]: { [index: string]: number|string}} = {
@@ -105,4 +113,9 @@ export const AssetToNai: {[index: string]: { [index: string]: number|string}} = 
 export const NaiToAsset: {[index: string] : string} = {
     '@@000000013': 'HBD',
     '@@000000021': 'HIVE'
+}
+export interface OperationHiveAsset {
+    amount: string
+    precision: number
+    nai: string
 }

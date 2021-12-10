@@ -1,5 +1,5 @@
 import compileExpression from "./filtrex"
-import { BuyCommand, ConsequentCommand, ConsequentCommandString, DefaultTokenExchangeMap, SellCommand, StakeCommand, TransferCommand, WarnCommand } from "../types/maintypes"
+import { BuyCommand, ConsequentCommand, ConsequentCommandString, DefaultTokenExchangeMap, SellCommand, StakeCommand, TransferCommand, DepositCommand, WarnCommand } from "../types/maintypes"
 
 export function parseConsequentCommand(c: ConsequentCommandString): ConsequentCommand {
 
@@ -120,47 +120,54 @@ export function parseConsequentCommand(c: ConsequentCommandString): ConsequentCo
             }
             break
 
-            case 'stake':
-                from = from === '' ? to : from
-                to = to === '' ? from : to
-                if(to !== '') r = <StakeCommand>{ command, amount, assettype, to, from }
-                // else defaults to unknown TODO consider throwing an error
-                break
+        case 'stake':
+            from = from === '' ? to : from
+            to = to === '' ? from : to
+            if(to !== '') r = <StakeCommand>{ command, amount, assettype, to, from }
+            // else defaults to unknown TODO consider throwing an error
+            break
 
-            case 'sell':
-                toassettype = toassettype === '' ? DefaultTokenExchangeMap[assettype] : toassettype
-                r = <SellCommand>{ command, amount, assettype, from, toassettype, at }
-                break
+        case 'sell':
+            toassettype = toassettype === '' ? DefaultTokenExchangeMap[assettype] : toassettype
+            r = <SellCommand>{ command, amount, assettype, from, toassettype, at }
+            break
 
-            case 'buy':
-                if(toassettype === '') {
-                    console.log('ERROR HIVEENGINE: buy commands need a target asset')
-                    console.log(c)
-                    process.exit(-1)
-                }
-                if(assettype !== 'SWAP.HIVE') {
-                    console.log('ERROR HIVEENGINE: buy commands need an amount specified in SWAP.HIVE')
-                    console.log(c)
-                    process.exit(-1)
-                }
-                r = <BuyCommand>{ command, amount, assettype, from, toassettype, at }
-                break
+        case 'buy':
+            if(toassettype === '') {
+                console.log('ERROR HIVEENGINE: buy commands need a target asset')
+                console.log(c)
+                process.exit(-1)
+            }
+            if(assettype !== 'SWAP.HIVE') {
+                console.log('ERROR HIVEENGINE: buy commands need an amount specified in SWAP.HIVE')
+                console.log(c)
+                process.exit(-1)
+            }
+            r = <BuyCommand>{ command, amount, assettype, from, toassettype, at }
+            break
 
-            // case 'withdraw':
+        case 'deposit':
+            from = from === '' ? to : from
+            to = to === '' ? from: to
+            if(from !== '') r = <DepositCommand>{ command, amount, assettype, to, from, memo }
+            // else defaults to unknown TODO consider throwing an error
+            break
+
+        // case 'withdraw':
             //     from = from === '' ? to : from
             //     if(from !== '') r = <WithdrawCommand>{ command, amount, assettype, from }
             //     // else defaults to unknown TODO consider throwing an error
             //     break
 
-            case 'warn':
-                r = <WarnCommand>{ command, message: memo }
-                break
+        case 'warn':
+            r = <WarnCommand>{ command, message: memo }
+            break
 
-            default:
-                console.log('UNKNOWN COMMAND: "' + command + '". In rule then section. Fix the config.')
-                console.log('RULE-then: ' + c)
-                break
-        }
+        default:
+            console.log('UNKNOWN COMMAND: "' + command + '". In rule then section. Fix the config.')
+            console.log('RULE-then: ' + c)
+            break
+    }
 
     // Output some debug
     //console.log(c)

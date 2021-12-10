@@ -82,6 +82,14 @@ pairs: of, from, at
 
 This command buys a token with SWAP.HIVE on the hiveengine order book market. Not valid for the Hive blockchain; use `sell` instead.
 
+### deposit
+`save ('eturnerx.SWAP.HIVE_balance' - 5.0) HIVE to 'eturnerx'`
+
+prefix: deposit amount symbol
+pairs: to, from, memo
+
+This command deposits a hive token (e.g. HIVE or HBD) to savings. Not valid for the Hive-Engine sidechain; there is no equivalent command.
+
 ### warn
 `warn message \"This is a warning message.\"`
 prefix: warn

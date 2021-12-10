@@ -272,6 +272,7 @@ export async function executeCommand(cmd: CommandForExecution, orderid: number, 
             cmd.success = true
             break
 
+        case 'deposit':
         default:
             quietconsole.log(
                 'Command not recognised: ' + cmd.command.command + " in \n\t" + cmd.name + "\n\t" + JSON.stringify(cmd.command),
