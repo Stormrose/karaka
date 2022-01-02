@@ -45,6 +45,7 @@ export function parseConsequentCommand(c: ConsequentCommandString): ConsequentCo
     let command: string = tokens2[tidx]
     let amount: string | Function = ''
     let assettype: string = ''
+    let hassideeffects: boolean = true
     tidx++
     if(command !== 'warn') {
         try {
@@ -59,6 +60,9 @@ export function parseConsequentCommand(c: ConsequentCommandString): ConsequentCo
             console.log(e)
             process.exit(-1)
         }
+    } else {
+        // Warn commands don't have side-effects - generally won't cause the mainloop to use shorter cycle time
+        hassideeffects = false
     }
     let to: string = ''
     let from: string = ''
@@ -110,26 +114,26 @@ export function parseConsequentCommand(c: ConsequentCommandString): ConsequentCo
     }
 
     // Build the ConsequentCommand
-    let r: ConsequentCommand = { command:'unknown' }
+    let r: ConsequentCommand = { command:'unknown', hassideeffects: false }
     switch(command) {
         case 'transfer':
             if(memo !== '') {
-                r = <TransferCommand>{ command, amount, assettype, to, from, memo }
+                r = <TransferCommand>{ command, amount, assettype, to, from, memo, hassideeffects }
             } else {
-                r = <TransferCommand>{ command, amount, assettype, to, from }
+                r = <TransferCommand>{ command, amount, assettype, to, from, hassideeffects }
             }
             break
 
         case 'stake':
             from = from === '' ? to : from
             to = to === '' ? from : to
-            if(to !== '') r = <StakeCommand>{ command, amount, assettype, to, from }
+            if(to !== '') r = <StakeCommand>{ command, amount, assettype, to, from, hassideeffects }
             // else defaults to unknown TODO consider throwing an error
             break
 
         case 'sell':
             toassettype = toassettype === '' ? DefaultTokenExchangeMap[assettype] : toassettype
-            r = <SellCommand>{ command, amount, assettype, from, toassettype, at }
+            r = <SellCommand>{ command, amount, assettype, from, toassettype, at, hassideeffects }
             break
 
         case 'buy':
@@ -143,13 +147,13 @@ export function parseConsequentCommand(c: ConsequentCommandString): ConsequentCo
                 console.log(c)
                 process.exit(-1)
             }
-            r = <BuyCommand>{ command, amount, assettype, from, toassettype, at }
+            r = <BuyCommand>{ command, amount, assettype, from, toassettype, at, hassideeffects }
             break
 
         case 'deposit':
             from = from === '' ? to : from
             to = to === '' ? from: to
-            if(from !== '') r = <DepositCommand>{ command, amount, assettype, to, from, memo }
+            if(from !== '') r = <DepositCommand>{ command, amount, assettype, to, from, memo, hassideeffects }
             // else defaults to unknown TODO consider throwing an error
             break
 
@@ -160,7 +164,7 @@ export function parseConsequentCommand(c: ConsequentCommandString): ConsequentCo
             //     break
 
         case 'warn':
-            r = <WarnCommand>{ command, message: memo }
+            r = <WarnCommand>{ command, message: memo, hassideeffects }
             break
 
         default:

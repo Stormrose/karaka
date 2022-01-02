@@ -8,11 +8,13 @@ import QuietConsole from './QuietConsole'
 
 const quietconsole: QuietConsole = new QuietConsole('TICK')
 
-export async function mainTick(config: KarakaConfig) {
+export async function mainTick(config: KarakaConfig): Promise<boolean> {
+    let r: boolean = false
     quietconsole.log(
         'tickstart',
         'mainTick() start.'
     )
+
     if(config.hive) {
         const hiveapiclient: HiveClient = new HiveClient(config.hive.apinode)
 
@@ -30,6 +32,7 @@ export async function mainTick(config: KarakaConfig) {
         for(const cmd of hivecommandq) {
             orderid++
             await HiveHelper.executeCommand(cmd, orderid, config.hive.accounts, hiveapiclient, true)
+            r = r || cmd.command.hassideeffects
         }
         // Report
     }
@@ -63,6 +66,7 @@ export async function mainTick(config: KarakaConfig) {
         // Execute the schedule
         for(const cmd of hiveenginecommandq) {
             await HiveEngineHelper.executeCommand(cmd, 0, config.hiveengine.accounts, hiveapiclient, true)
+            r = r || cmd.command.hassideeffects
         }
         // Report
 
@@ -71,6 +75,7 @@ export async function mainTick(config: KarakaConfig) {
             'mainTick() end.'
         )
     }
+    return Promise.resolve(r)
 }
 
 let orderid: number = 1000;

@@ -2,6 +2,7 @@ import { Asset as HiveAsset } from '@hiveio/dhive'
 
 export type KarakaConfig = {
     intervalmins: number
+    intervalrepeatmins: number
     hive?: HiveLikeChain
     hiveengine?: HiveEngineLikeChain
     steem?: HiveLikeChain
@@ -43,10 +44,12 @@ export type ConsequentCommandString = string
 export type ParsedConsequent = ConsequentCommand[]
 export interface ConsequentCommand {
     command: string
+    hassideeffects: boolean
 }
 export interface ConsequentCommandWithAmount extends ConsequentCommand {
     amount: string | Function
     assettype: string
+    hassideeffects: true
 }
 export interface TransferCommand extends ConsequentCommandWithAmount {
     command: "transfer"
@@ -86,6 +89,7 @@ export interface WithdrawCommand extends ConsequentCommandWithAmount {
 export interface WarnCommand extends ConsequentCommand {
     command: "warn"
     message: string
+    hassideeffects: false
 }
 export type CommandForExecutions = CommandForExecution[]
 export interface CommandForExecution {
