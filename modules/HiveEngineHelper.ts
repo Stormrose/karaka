@@ -181,88 +181,47 @@ export async function executeCommand(cmd: CommandForExecution, orderid: number, 
             }
             break
 
-            case 'buy':
-                let bc: SellCommand = <SellCommand>cmd.command
-                while(!cmd.success && cmd.retries > 0 && retriable) {
-                    try {
-                        status = 'Building buy object.'
-                        retriable = false
-                        orderid++
-                        cmdobj = {
-                            id: 'ssc-mainnet-hive',
-                            required_auths: [ bc.from ],
-                            required_posting_auths: [],
-                            json: JSON.stringify({
-                                contractName: "market", contractAction: "marketBuy", contractPayload: {
-                                    symbol: bc.toassettype,
-                                    quantity: bc.amount
-                            }})
-                        }
-                        status = 'Getting active key.'
-                        wifa = getActiveKey(accounts, bc.from)
-                        status = 'Broadcasting buy operation.'
-                        retriable = true
-                        if(execute) await hiveapiclient.broadcast.json(cmdobj, wifa)
-                        status = 'Logging success.'
-                        retriable = false
-                        quietconsole.log(
-                            undefined,
-                            (execute ? '' : 'EXECUTION-SUPPRESSED: ') +
-                            'BUY ' + bc.toassettype + ' with ' + bc.amount + ' ' + bc.assettype + ' from ' + bc.from
-                        )
-                        cmd.success = true
-                    } catch(e){
-                        console.log('Command failed: ' + cmd.command.command + " in \n\t" + cmd.name + "\n\t" + JSON.stringify(cmd.command))
-                        console.log('\t' + JSON.stringify(cmdobj))
-                        console.log('STATUS: ' + status)
-                        console.log(e)
-                        if(retriable) console.log(cmd.retries + ' retries remain.')
-                        else console.log('Will not retry.')
-                        cmd.retries--
+        case 'buy':
+            let bc: SellCommand = <SellCommand>cmd.command
+            while(!cmd.success && cmd.retries > 0 && retriable) {
+                try {
+                    status = 'Building buy object.'
+                    retriable = false
+                    orderid++
+                    cmdobj = {
+                        id: 'ssc-mainnet-hive',
+                        required_auths: [ bc.from ],
+                        required_posting_auths: [],
+                        json: JSON.stringify({
+                            contractName: "market", contractAction: "marketBuy", contractPayload: {
+                                symbol: bc.toassettype,
+                                quantity: bc.amount
+                        }})
                     }
+                    status = 'Getting active key.'
+                    wifa = getActiveKey(accounts, bc.from)
+                    status = 'Broadcasting buy operation.'
+                    retriable = true
+                    if(execute) await hiveapiclient.broadcast.json(cmdobj, wifa)
+                    status = 'Logging success.'
+                    retriable = false
+                    quietconsole.log(
+                        undefined,
+                        (execute ? '' : 'EXECUTION-SUPPRESSED: ') +
+                        'BUY ' + bc.toassettype + ' with ' + bc.amount + ' ' + bc.assettype + ' from ' + bc.from
+                    )
+                    cmd.success = true
+                } catch(e){
+                    console.log('Command failed: ' + cmd.command.command + " in \n\t" + cmd.name + "\n\t" + JSON.stringify(cmd.command))
+                    console.log('\t' + JSON.stringify(cmdobj))
+                    console.log('STATUS: ' + status)
+                    console.log(e)
+                    if(retriable) console.log(cmd.retries + ' retries remain.')
+                    else console.log('Will not retry.')
+                    cmd.retries--
                 }
-                break
-
-        // case 'withdraw':
-        //     let wc: WithdrawCommand = <WithdrawCommand>cmd.command
-        //     while(!cmd.success && cmd.retries > 0 && retriable) {
-        //         try {
-        //             status = 'Building withdraw object.'
-        //             retriable = false
-        //             orderid++
-        //             cmdobj = {
-        //                 id: 'ssc-mainnet-hive',
-        //                 required_auths: [ wc.from ],
-        //                 required_posting_auths: [],
-        //                 json: JSON.stringify({
-        //                     contractName: "hivepegged", contractAction: "withdraw", contractPayload: {
-        //                         quantity: wc.amount
-        //                 }})
-        //             }
-        //             status = 'Getting active key.'
-        //             wifa = getActiveKey(accounts, wc.from)
-        //             status = 'Broadcasting sell operation.'
-        //             retriable = true
-        //             if(execute) await hiveapiclient.broadcast.json(cmdobj, wifa)
-        //             status = 'Logging success.'
-        //             retriable = false
-        //             quietconsole.log(
-        //                  undefined,
-        //                 (execute ? '' : 'EXECUTION-SUPPRESSED: ') +
-        //                 'WITHDRAW ' + wc.amount + ' ' + wc.assettype + ' from ' + wc.from
-        //             )
-        //             cmd.success = true
-        //         } catch(e){
-        //             console.log('Command failed: ' + cmd.command.command + " in \n\t" + cmd.name + "\n\t" + JSON.stringify(cmd.command))
-        //             console.log('\t' + JSON.stringify(cmdobj))
-        //             console.log('STATUS: ' + status)
-        //             console.log(e)
-        //             if(retriable) console.log(cmd.retries + ' retries remain.')
-        //             else console.log('Will not retry.')
-        //             cmd.retries--
-        //         }
-        //     }
-        //     break
+            }
+            break
 
         case 'warn':
             quietconsole.log(
@@ -273,6 +232,15 @@ export async function executeCommand(cmd: CommandForExecution, orderid: number, 
             break
 
         case 'deposit':
+        case 'withdraw':
+            quietconsole.log(
+                'Command not supported: ' + cmd.command.command + " in \n\t" + cmd.name + "\n\t" + JSON.stringify(cmd.command),
+                'Command not supported: ' + cmd.command.command + " in \n\t" + cmd.name + "\n\t" + JSON.stringify(cmd.command)
+            )
+            cmd.retries = -1
+            cmd.success = false
+            break
+
         default:
             quietconsole.log(
                 'Command not recognised: ' + cmd.command.command + " in \n\t" + cmd.name + "\n\t" + JSON.stringify(cmd.command),

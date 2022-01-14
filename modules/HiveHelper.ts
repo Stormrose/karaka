@@ -209,8 +209,16 @@ export async function executeCommand(cmd: CommandForExecution, orderid: number, 
 
         case 'buy':
         case 'withdraw':
+            quietconsole.log(
+                'Command not supported: ' + cmd.command.command + " in \n\t" + cmd.name + "\n\t" + JSON.stringify(cmd.command),
+                'Command not supported: ' + cmd.command.command + " in \n\t" + cmd.name + "\n\t" + JSON.stringify(cmd.command)
+            )
+            cmd.retries = -1
+            cmd.success = false
+            break
+
         default:
-            console.log(
+            quietconsole.log(
                 'Command not recognised: ' + cmd.command.command + " in \n\t" + cmd.name + "\n\t" + JSON.stringify(cmd.command),
                 'Command not recognised: ' + cmd.command.command + " in \n\t" + cmd.name + "\n\t" + JSON.stringify(cmd.command)
             )
