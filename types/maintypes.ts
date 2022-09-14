@@ -42,8 +42,9 @@ export type Rule = {
     "then": Consequent
     _antecedent?: Function
     _consequent?: ParsedConsequent
-    name: string
+    name?: string
     comment?: string
+    foreach?: string[]
 }
 export type Antecedent = string
 export type Consequent = ConsequentCommandString[]
