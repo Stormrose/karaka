@@ -10,6 +10,7 @@ export type KarakaConfig = {
 }
 export interface HiveLikeChain {
     constants?: Facts
+    imports?: ImportedFacts
     apinode: ApiNode
     accounts: Accounts
     rules: Rules
@@ -28,6 +29,12 @@ export type WifKeys = {
     wifp?: WifPostingKey
     wifm?: WifMemoKey
     from?: string
+}
+export type ImportedFacts = ImportedFact[]
+export type ImportedFact = {
+    chain: "hive" | "hiveengine" | "steem" | "steem-engine"
+    from: string
+    to?: string
 }
 export type Rules = Rule[]
 export type Rule = {

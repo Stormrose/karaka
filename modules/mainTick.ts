@@ -16,11 +16,11 @@ export async function mainTick(config: KarakaConfig): Promise<boolean> {
     )
 
     // Create connections
-    let hiveapiclient: HiveClient = new HiveClient(config.hive?.apinode ?? "https://api.hive.blog")
+    let hiveapiclient: HiveClient = new HiveClient(config.hive?.apinode ?? 'https://api.hive.blog')
     let hehiveapiclient: HiveClient = hiveapiclient
 
     if(config.hiveengine) {
-        config.hiveengine.apinode = config.hiveengine.apinode ?? config.hive?.apinode ?? "https://api.hive.blog"
+        config.hiveengine.apinode = config.hiveengine.apinode ?? config.hive?.apinode ?? 'https://api.hive.blog'
         hehiveapiclient = new HiveClient(config.hiveengine.apinode)
 
         // Check if accounts
@@ -46,13 +46,31 @@ export async function mainTick(config: KarakaConfig): Promise<boolean> {
         hiveenginefacts = FactHelper.mergeFacts(hiveenginefacts, config.hiveengine.constants)
     }
 
+    // Imported facts
+    if(config.hive && config.hive.imports) {
+        for(const i of config.hive.imports) {
+            if(!i.chain || !i.from) continue
+            const fromfacts: Facts = i.chain === 'hive' ? hivefacts : i.chain === 'hiveengine' ? hiveenginefacts : {}
+            if(!fromfacts[i.from]) continue
+            hivefacts[i.to ?? i.from] = fromfacts[i.from]
+        }
+    }
+    if(config.hiveengine && config.hiveengine.imports) {
+        for(const i of config.hiveengine.imports) {
+            const fromfacts: Facts = i.chain === 'hive' ? hivefacts : i.chain === 'hiveengine' ? hiveenginefacts : {}
+            if(fromfacts.length === 0) continue
+            if(!i.from && !fromfacts[i.from]) continue
+            hiveenginefacts[i.to ?? i.from] = fromfacts[i.from]
+        }
+    }
+
     // Gather schedule of commands to execute
     let hivecommandq: CommandForExecutions = []
     let hiveenginecommandq: CommandForExecutions = []
 
     if(config.hive) {
         hivecommandq = getScheduleOfConsequentsToExecute(hivefacts, config.hive.rules, 'HIVE', true)
-        if(hivecommandq.length === 0) quietconsole.log('hivenorulesmatched', 'HIVE: No rules matched.')        
+        if(hivecommandq.length === 0) quietconsole.log('hivenorulesmatched', 'HIVE: No rules matched.')
     }
     if(config.hiveengine) {
         hiveenginecommandq = getScheduleOfConsequentsToExecute(hiveenginefacts, config.hiveengine.rules, 'HIVEENGINE', true)

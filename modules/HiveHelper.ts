@@ -128,7 +128,7 @@ export async function executeCommand(cmd: CommandForExecution, orderid: number, 
                             // amount_to_sell: { amount: mc.amount, ...AssetToNai[mc.assettype] },
                             min_to_receive: '0.001 ' + mc.toassettype,
                             // min_to_receive: { amount: '0.001', ...AssetToNai[mc.toassettype] },
-                            fill_or_kill: true,
+                            fill_or_kill: false,
                             expiration: (new Date(Date.now() + (17 * 1000))).toISOString().substring(0,19)
                         }
                     ]

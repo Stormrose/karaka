@@ -1,6 +1,9 @@
 config.json
 monitor
 log.txt
+karaka.service
+karaka_service.sh
+karaka*.zip
 .vscode/
 package-lock.json
 dist/*
