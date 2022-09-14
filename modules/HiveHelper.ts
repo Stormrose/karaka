@@ -18,7 +18,7 @@ export async function gatherFacts(hiveaccounts: Accounts, hiveapiclient: HiveCli
         hivefacts[account.name + '.' + 'hbd_savings'] = parseFloat((<string>account.savings_hbd_balance).split(' ')[0])
         hivefacts[account.name + '.' + 'reputation'] = parseFloat(<string>account.reputation)
         hivefacts[account.name + '.' + 'voting_power'] = account.voting_power
-        quietconsole.log(
+        if(!(<WifKeys>hiveaccounts[account.name]).silent) quietconsole.log(
             'accountsummary_' + account.name,
             '@' + account.name + ': ' + account.balance + ', ' + account.hbd_balance
         )

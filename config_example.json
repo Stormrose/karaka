@@ -16,7 +16,9 @@
             "eturnerx-honey": {     "wifp": "",
                                     "wifa": "" },
             "msp-makeaminnow": {    "wifp": "",
-                                    "wifa": "" }
+                                    "wifa": "",
+                                    "silent": true
+                                }
         },
         "rules": [
             {

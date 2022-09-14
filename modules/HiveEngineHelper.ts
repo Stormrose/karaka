@@ -31,7 +31,7 @@ export async function gatherFacts(heaccounts: Accounts, _hiveapiclient: HiveClie
             if(parseFloat(tokeninfo.balance) !== 0) hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_balance'] = parseFloat(tokeninfo.balance)
             if(parseFloat(tokeninfo.stake) !== 0) hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_stake'] = parseFloat(tokeninfo.stake)
         }
-        quietconsole.log(
+        if(!(<WifKeys>heaccounts[heaccountname]).silent) quietconsole.log(
             'accountsummary_' + heaccountname,
             '@' + heaccountname + ': ' 
             + (hefacts?.[heaccountname + '.SWAP.HIVE_balance'] ?? '0') + ' SWAP.HIVE / ' 

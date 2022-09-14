@@ -29,6 +29,7 @@ export type WifKeys = {
     wifp?: WifPostingKey
     wifm?: WifMemoKey
     from?: string
+    silent?: boolean
 }
 export type ImportedFacts = ImportedFact[]
 export type ImportedFact = {

@@ -31,6 +31,10 @@ An example rule:
 The `if` clauses contains a conditional statement. In this case, the fact `'msp-makeaminnow.hive_balance'` is evaluated to see if it is greater than `0.1`. The fact is enclosed in single quotes because the fact name contains a hyphen.
 The `then` clause is a single command string in this case but can also be a JSON array of commands strings that Karaka executes in order.
 
+## Accounts
+Accounts can be listed with just minimally a string, which would be the WIFA - or active key. Alternatively, a property object can be specified containing `wifa`, `wifp` if you
+need to specifiy multiple keys. Account balances are reported whenever they change. You can suppress the displaying of a particular account by adding the property `"silent": true` - useful for exchange accounts.
+
 ## Facts
 A fact generally takes the form of `accountname`.`tokensymbol`_`type` where type is balance or stake. For example, `eturnerx.hive_balance` is the fact with the value of eturnerx's liquid hive balance.
 GOTCHA: account names with a hyphen-in-them must use 'single quotes' around the fact name.
