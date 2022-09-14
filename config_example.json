@@ -69,7 +69,6 @@
         "constants": {
             "hivereserve": 700,
             "hivemargin": 2,
-            "palreserve": 1500,
             "beereserve": 1200,
             "hetokenmargin": 10
         },
@@ -95,18 +94,12 @@
                     "stake (eturnerx.VIBES_balance * 0.50) VIBES from eturnerx"
                 ]
             }, {
-                "comment": "@eturnerx LEO sell 3/4, stake 1/4",
-                "if": "eturnerx.LEO_balance > hetokenmargin",
+                "foreach": [ "LEO", "PAL" ],
+                "comment": "@eturnerx {0}, sell half, stake half",
+                "if": "eturnerx.{0}_balance > hetokenmargin",
                 "then": [
-                    "sell (eturnerx.LEO_balance * 0.75) LEO for SWAP.HIVE from eturnerx at market",
-                    "stake (eturnerx.LEO_balance * 0.25) LEO from eturnerx"
-                ]
-            }, {
-                "comment": "@eturnerx PAL, keep some liquid, sell half, stake half",
-                "if": "eturnerx.PAL_balance > (palreserve + hetokenmargin)",
-                "then": [
-                    "sell ((eturnerx.PAL_balance - palreserve) * 0.5) PAL for SWAP.HIVE from eturnerx at market",
-                    "stake ((eturnerx.PAL_balance - palreserve) * 0.5) PAL from eturnerx"
+                    "sell (eturnerx.{0}_balance * 0.5) {0} for SWAP.HIVE from eturnerx at market",
+                    "stake (eturnerx.{0}_balance * 0.5) {0} from eturnerx"
                 ]
             }, {
                 "comment": "@eturnerx BEE, keep some liquid, sell all",
