@@ -1,6 +1,7 @@
 import { Client as HiveClient } from '@hiveio/dhive'
 import { KarakaConfig, Facts, CommandForExecutions, WifKeys } from "../types/maintypes"
 import { getScheduleOfConsequentsToExecute } from "./getScheduleOfConsequentsToExecute"
+import * as OracleHelper from './OracleHelper'
 import * as HiveHelper from './HiveHelper'
 import * as HiveEngineHelper from './HiveEngineHelper'
 import * as FactHelper from './FactHelper'
@@ -34,16 +35,19 @@ export async function mainTick(config: KarakaConfig): Promise<boolean> {
     }
 
     // Gather facts
+    let oraclefacts: Facts = {}
     let hivefacts: Facts = {}
     let hiveenginefacts: Facts = {}
-
+    if(config.oracles) {
+        oraclefacts = await OracleHelper.gatherFacts(config.oracles, new HiveClient(config.hive?.apinode ?? 'https://api.hive.blog'))
+    }
     if(config.hive) {
         hivefacts = await HiveHelper.gatherFacts(config.hive.accounts, hiveapiclient)
-        hivefacts = FactHelper.mergeFacts(hivefacts, config.hive.constants)
+        hivefacts = FactHelper.mergeFacts(FactHelper.mergeFacts(hivefacts, config.hive.constants), oraclefacts)
     }
     if(config.hiveengine) {
         hiveenginefacts = await HiveEngineHelper.gatherFacts(config.hiveengine.accounts, hehiveapiclient, config.hiveengine.sidechainuri)
-        hiveenginefacts = FactHelper.mergeFacts(hiveenginefacts, config.hiveengine.constants)
+        hiveenginefacts = FactHelper.mergeFacts(FactHelper.mergeFacts(hiveenginefacts, config.hiveengine.constants), oraclefacts)
     }
 
     // Imported facts

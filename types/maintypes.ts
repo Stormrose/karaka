@@ -3,6 +3,7 @@ import { Asset as HiveAsset } from '@hiveio/dhive'
 export type KarakaConfig = {
     intervalmins: number
     intervalrepeatmins: number
+    oracles?: Oracles
     hive?: HiveLikeChain
     hiveengine?: HiveEngineLikeChain
     steem?: HiveLikeChain
@@ -33,7 +34,7 @@ export type WifKeys = {
 }
 export type ImportedFacts = ImportedFact[]
 export type ImportedFact = {
-    chain: "hive" | "hiveengine" | "steem" | "steem-engine"
+    chain: "hive" | "hiveengine" | "steem" | "steemengine"
     from: string
     to?: string
 }
@@ -131,4 +132,26 @@ export interface OperationHiveAsset {
     amount: string
     precision: number
     nai: string
+}
+export type Oracles = Oracle[]
+export interface Oracle {
+    type: string
+    prefix: string
+    params: OracleParameters
+    comment?: string
+}
+export type OracleParameters = {[index: string]: string|number|string[]}
+export interface OracleCoingecko extends Oracle {
+    type: "coingecko",
+    prefix: "cg",
+    params: OracleParametersCoingecko
+}
+export type OracleParametersCoingecko = {
+    "vs_currency": string
+    "ids": string[]
+}
+export interface OracleHiveInternalMarket extends Oracle {
+    type: "hiveinternal",
+    prefix: "hv",
+    params: {}
 }
