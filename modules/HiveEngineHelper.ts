@@ -18,26 +18,30 @@ type HiveEngineLikeTokenInfos = HiveEngineLikeTokenInfo[]
 const quietconsole: QuietConsole = new QuietConsole('HIVEENGINE')
 
 export async function gatherFacts(heaccounts: Accounts, _hiveapiclient: HiveClient, sidechainuri: string): Promise<Facts> {
-    //@ts-ignore Not constructible
-    const hiveengine = new HiveEngine(sidechainuri)
-    // console.log('HIVEENGINE: Gathering facts.')
-    const heaccountnames: string[] = Object.keys(heaccounts)
-    quietconsole.log('fetch', 'Fetching accounts @' + heaccountnames.join(', @'))
     const hefacts: {[index: string]: string|number} = {}
-    for(const heaccountname of heaccountnames) {
-        let heaccountdata = <HiveEngineLikeTokenInfos>(await hiveengine.find('tokens', 'balances', { account: heaccountname }))
-        for(const tokeninfo of heaccountdata) {
-            // hefacts[heaccountname] = JSON.stringify(heaccountdata)
-            if(parseFloat(tokeninfo.balance) !== 0) hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_balance'] = parseFloat(tokeninfo.balance)
-            if(parseFloat(tokeninfo.stake) !== 0) hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_stake'] = parseFloat(tokeninfo.stake)
+    try {
+        //@ts-ignore Not constructible
+        const hiveengine = new HiveEngine(sidechainuri)
+        // console.log('HIVEENGINE: Gathering facts.')
+        const heaccountnames: string[] = Object.keys(heaccounts)
+        quietconsole.log('fetch', 'Fetching accounts @' + heaccountnames.join(', @'))
+        for(const heaccountname of heaccountnames) {
+            let heaccountdata = <HiveEngineLikeTokenInfos>(await hiveengine.find('tokens', 'balances', { account: heaccountname }))
+            for(const tokeninfo of heaccountdata) {
+                // hefacts[heaccountname] = JSON.stringify(heaccountdata)
+                if(parseFloat(tokeninfo.balance) !== 0) hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_balance'] = parseFloat(tokeninfo.balance)
+                if(parseFloat(tokeninfo.stake) !== 0) hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_stake'] = parseFloat(tokeninfo.stake)
+            }
+            if(!(<WifKeys>heaccounts[heaccountname]).silent) quietconsole.log(
+                'accountsummary_' + heaccountname,
+                '@' + heaccountname + ': ' 
+                + (hefacts?.[heaccountname + '.SWAP.HIVE_balance'] ?? '0') + ' SWAP.HIVE / ' 
+                + (hefacts?.[heaccountname + '.SWAP.HBD_balance'] ?? '0') + ' SWAP.HBD / ' 
+                + (hefacts?.[heaccountname + '.BEE_balance'] ?? '0') + ' BEE.'
+            )
         }
-        if(!(<WifKeys>heaccounts[heaccountname]).silent) quietconsole.log(
-            'accountsummary_' + heaccountname,
-            '@' + heaccountname + ': ' 
-            + (hefacts?.[heaccountname + '.SWAP.HIVE_balance'] ?? '0') + ' SWAP.HIVE / ' 
-            + (hefacts?.[heaccountname + '.SWAP.HBD_balance'] ?? '0') + ' SWAP.HBD / ' 
-            + (hefacts?.[heaccountname + '.BEE_balance'] ?? '0') + ' BEE.'
-        )
+    } catch(e:any) {
+        quietconsole.log(e.message, e.message)
     }
     return hefacts
 }

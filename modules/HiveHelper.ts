@@ -5,23 +5,26 @@ import QuietConsole from './QuietConsole'
 const quietconsole: QuietConsole = new QuietConsole('HIVE')
 
 export async function gatherFacts(hiveaccounts: Accounts, hiveapiclient: HiveClient): Promise<Facts> {
-    // console.log('HIVE: Getting accounts and adding to fact pool.')
-    const hiveaccountnames: string[] = Object.keys(hiveaccounts)
-    quietconsole.log('fetch', 'Fetching accounts @' + hiveaccountnames.join(', @'))    
-    let hiveaccountdata: HiveExtendedAccount[] = await hiveapiclient.database.getAccounts(hiveaccountnames)
     const hivefacts: {[index: string]: string|number|HiveAsset} = {}
-    for(const account of hiveaccountdata) {
-        hivefacts[account.name + '.' + 'hive_balance'] = parseFloat((<string>account.balance).split(' ')[0])
-        hivefacts[account.name + '.' + 'hbd_balance'] = parseFloat((<string>account.hbd_balance).split(' ')[0])
-        hivefacts[account.name + '.' + 'vesting_shares'] = parseFloat((<string>account.vesting_shares).split(' ')[0])
-        hivefacts[account.name + '.' + 'hive_savings'] = parseFloat((<string>account.savings_balance).split(' ')[0])
-        hivefacts[account.name + '.' + 'hbd_savings'] = parseFloat((<string>account.savings_hbd_balance).split(' ')[0])
-        hivefacts[account.name + '.' + 'reputation'] = parseFloat(<string>account.reputation)
-        hivefacts[account.name + '.' + 'voting_power'] = account.voting_power
-        if(!(<WifKeys>hiveaccounts[account.name]).silent) quietconsole.log(
-            'accountsummary_' + account.name,
-            '@' + account.name + ': ' + account.balance + ', ' + account.hbd_balance
-        )
+    try {
+        const hiveaccountnames: string[] = Object.keys(hiveaccounts)
+        quietconsole.log('fetch', 'Fetching accounts @' + hiveaccountnames.join(', @'))    
+        let hiveaccountdata: HiveExtendedAccount[] = await hiveapiclient.database.getAccounts(hiveaccountnames)
+        for(const account of hiveaccountdata) {
+            hivefacts[account.name + '.' + 'hive_balance'] = parseFloat((<string>account.balance).split(' ')[0])
+            hivefacts[account.name + '.' + 'hbd_balance'] = parseFloat((<string>account.hbd_balance).split(' ')[0])
+            hivefacts[account.name + '.' + 'vesting_shares'] = parseFloat((<string>account.vesting_shares).split(' ')[0])
+            hivefacts[account.name + '.' + 'hive_savings'] = parseFloat((<string>account.savings_balance).split(' ')[0])
+            hivefacts[account.name + '.' + 'hbd_savings'] = parseFloat((<string>account.savings_hbd_balance).split(' ')[0])
+            hivefacts[account.name + '.' + 'reputation'] = parseFloat(<string>account.reputation)
+            hivefacts[account.name + '.' + 'voting_power'] = account.voting_power
+            if(!(<WifKeys>hiveaccounts[account.name]).silent) quietconsole.log(
+                'accountsummary_' + account.name,
+                '@' + account.name + ': ' + account.balance + ', ' + account.hbd_balance
+            )
+        }
+    } catch(e:any) {
+        quietconsole.log(e.message, e.message)
     }
     return hivefacts
 }
