@@ -22,14 +22,14 @@ Then create a `config.json` file for your specific needs.
 The program takes its instructions from a file named `config.json`. Look at the `config_example.json` file and build your own. The rules are somewhat human-readable.
 
 ## Concepts
-For each supported blockchain, the program gathers *facts* about listed accounts and then checks these facts against the `if` clause of supplied rules. Matched rules have the commands in their `then` clauses executed.
+For each supported blockchain, the program gathers *facts* about listed accounts and then checks these facts against the `if` clause of supplied rules. Matched rules have the *commands* in their `then` clauses executed.
 
 An example rule:
 `{ "if": "'msp-makeaminnow.hive_balance' > 0.100", `
 `  "then": "stake ('msp-makeaminnow.hive_balance') HIVE from 'msp-makeaminnow'" }`
 
 The `if` clauses contains a conditional statement. In this case, the fact `'msp-makeaminnow.hive_balance'` is evaluated to see if it is greater than `0.1`. The fact is enclosed in single quotes because the fact name contains a hyphen.
-The `then` clause is a single command string in this case but can also be a JSON array of commands strings that Karaka executes in order.
+The `then` clause is a single command string in this case but can also be a JSON array of command strings that Karaka executes in order.
 
 ## Accounts
 Accounts can be listed with just minimally a string, which would be the WIFA - or active key. Alternatively, a property object can be specified containing `wifa`, `wifp` if you
@@ -38,7 +38,7 @@ need to specifiy multiple keys. Account balances are reported whenever they chan
 ## Facts
 A fact generally takes the form of `accountname`.`tokensymbol`_`type` where type is balance or stake. For example, `eturnerx.hive_balance` is the fact with the value of eturnerx's liquid hive balance.
 GOTCHA: account names with a hyphen-in-them must use 'single quotes' around the fact name.
-There is a per-blockchain `constants` section where the user can hardcode facts. Constants simplify the administration of rules that reuse the same values, such as setting the reserve (keep-back) levels of a particular token.
+There is a per-blockchain `constants` section where the user can hardcode facts. Constants simplify the administration of rules that reuse the same values, such as setting the reserve (keep-back) levels of a particular token. Facts generally are scoped to within chains, but facts can be copied from other chains using `imports` or from external sources using `oracles`. Imports and oracles are covered below.
 
 ## Commands
 The available commands are transfer, stake, sell, buy and warn. See the file `config_example.json` for various examples.
@@ -106,7 +106,18 @@ Here are some tutorials that explain scenarios and features using examples.
 - [Karaka Tutorial #1: A Basic Tutorial config.json example](https://hive.blog/engine/@eturnerx/karaka-tutorial-1-a-basic-tutorial-configjson-example)
 - [Karaka Tutorial #2: Hive-Engine Tokens](https://hive.blog/engine/@eturnerx/d-buzz-not-working-on-5e8a5c9a21c53)
 - [Karaka Tutorial #3: Constants](https://hive.blog/engine/@eturnerx/karaka-tutorial-3-constants)
+- [Karaka Tutorial #4: Importing facts between chains](https://hive.blog/engine/@eturnerx/karaka-tutorial-4-import-facts)
+- [Karaka Tutorial #5: Oracles](https://hive.blog/engine/@eturnerx/karaka-tutorial-5-oracles)
+- [Karaka Tutorial #6: foreach saving you time and space](https://hive.blog/engine/@eturnerx/karaka-tutorial-6-foreach-saving)
 
+## Imports
+See the tutorial: [Karaka Tutorial #4: Importing facts between chains](https://hive.blog/engine/@eturnerx/karaka-tutorial-4-import-facts)
+
+## Oracles
+By default, facts asserted by oracles are copied into the scope of each chain and do not need to be imported. Each oracle declared in the config file can specify a unique prefix that can be used to avoid fact name clashes. 
+
+## Foreach: basic wildcards for rules
+See the tutorial: [Karaka Tutorial #6: foreach saving you time and space](https://hive.blog/engine/@eturnerx/karaka-tutorial-6-foreach-saving)
 
 ## License
 Copyright © 2021 Emmanuel King Turner - All Rights Reserved.
