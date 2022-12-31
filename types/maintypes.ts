@@ -146,7 +146,7 @@ export interface OracleCoingecko extends Oracle {
     prefix: "cg",
     params: OracleParametersCoingecko
 }
-export type OracleParametersCoingecko = {
+type OracleParametersCoingecko = {
     "vs_currency": string
     "ids": string[]
 }
@@ -154,4 +154,13 @@ export interface OracleHiveInternalMarket extends Oracle {
     type: "hiveinternal",
     prefix: "hv",
     params: {}
+}
+export interface OracleHiveEngineOrderBook extends Oracle {
+    type: "hiveengineorderbook",
+    prefix: "heob",
+    params: OracleParametersHiveEngineOrderBook
+}
+type OracleParametersHiveEngineOrderBook = {
+    sidechainuri: string,
+    tokens: string[]
 }

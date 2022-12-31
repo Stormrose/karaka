@@ -1,6 +1,6 @@
 {
   "name": "Karaka",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Hive and Hive-Engine clerk bot/automation tool",
   "main": "dist/index.js",
   "dependencies": {

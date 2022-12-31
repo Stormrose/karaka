@@ -1,8 +1,9 @@
 import { Client as HiveClient } from '@hiveio/dhive'
-import { Facts, Oracles, OracleCoingecko, OracleHiveInternalMarket } from "../types/maintypes"
+import { Facts, Oracles, OracleCoingecko, OracleHiveInternalMarket, OracleHiveEngineOrderBook } from "../types/maintypes"
 import { mergeFacts } from "./FactHelper"
 import { gatherFacts as Coingecko_gatherFacts } from "./OracleCoingeckoHelper"
 import { gatherFacts as HiveInternal_gatherFacts } from "./OracleHiveInternalMarket"
+import { gatherFacts as OracleHiveEngineOrderBook_gatherFacts } from './OracleHiveEngineOrderBook'
 import QuietConsole from './QuietConsole'
 
 const quietconsole: QuietConsole = new QuietConsole('ORACLES')
@@ -15,6 +16,9 @@ export async function gatherFacts(oracles: Oracles, hiveapi: HiveClient): Promis
             facts = mergeFacts(facts, newfacts)
         } else if(o.type === "hiveinternal") {
             let newfacts: Facts = await HiveInternal_gatherFacts(<OracleHiveInternalMarket>o, hiveapi)
+            facts = mergeFacts(facts, newfacts)
+        } else if(o.type === "hiveengineorderbook") {
+            let newfacts: Facts = await OracleHiveEngineOrderBook_gatherFacts(<OracleHiveEngineOrderBook>o)
             facts = mergeFacts(facts, newfacts)
         } else {
             quietconsole.log(JSON.stringify(o), "Unknown oracle: " + JSON.stringify(o))
