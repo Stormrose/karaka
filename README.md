@@ -109,12 +109,16 @@ Here are some tutorials that explain scenarios and features using examples.
 - [Karaka Tutorial #4: Importing facts between chains](https://hive.blog/engine/@eturnerx/karaka-tutorial-4-import-facts)
 - [Karaka Tutorial #5: Oracles](https://hive.blog/engine/@eturnerx/karaka-tutorial-5-oracles)
 - [Karaka Tutorial #6: foreach saving you time and space](https://hive.blog/engine/@eturnerx/karaka-tutorial-6-foreach-saving)
+- [Automating Hive with Karaka Tutorial #7: Hive Token Price Tickers (an oracle)](https://peakd.com/@eturnerx/automating-hive-with-karaka-tutorial-7-hive-token-price-tickers-an-oracle)
 
 ## Imports
 See the tutorial: [Karaka Tutorial #4: Importing facts between chains](https://hive.blog/engine/@eturnerx/karaka-tutorial-4-import-facts)
 
 ## Oracles
-By default, facts asserted by oracles are copied into the scope of each chain and do not need to be imported. Each oracle declared in the config file can specify a unique prefix that can be used to avoid fact name clashes. 
+Oracles bring in facts from outside of Karaka. Currently there are oracles for the Hive internal market, crypto prices from coingecko and hive-engine token prices. By default, facts asserted by oracles are copied into the scope of each chain and do not need to be imported. Each oracle declared in the config file can specify a unique prefix that can be used to avoid fact name clashes. 
+See the tutorials: 
+- [Karaka Tutorial #5: Oracles](https://hive.blog/engine/@eturnerx/karaka-tutorial-5-oracles)
+- [Automating Hive with Karaka Tutorial #7: Hive Token Price Tickers (an oracle)](https://peakd.com/@eturnerx/)
 
 ## Foreach: basic wildcards for rules
 See the tutorial: [Karaka Tutorial #6: foreach saving you time and space](https://hive.blog/engine/@eturnerx/karaka-tutorial-6-foreach-saving)
