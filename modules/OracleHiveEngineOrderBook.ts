@@ -7,6 +7,7 @@ const quietconsole: QuietConsole = new QuietConsole('ORACLE-HIVEENGINEORDERBOOK'
 export async function gatherFacts(oheob: OracleHiveEngineOrderBook): Promise<Facts> {
     let facts: Facts = {}
     oheob.prefix = oheob.prefix ?? "hem"
+    oheob.printsuppresspct = oheob.printsuppresspct ?? 0.5,
     oheob.params = oheob.params ?? {}
     oheob.params.sidechainuri = oheob.params.sidechainuri ?? "https://api.hive-engine.com/rpc"
     oheob.params.tokens = oheob.params.tokens ?? []
@@ -19,6 +20,6 @@ export async function gatherFacts(oheob: OracleHiveEngineOrderBook): Promise<Fac
         if(hres.lowestAsk) facts[oheob.prefix + i + '_ask'] = parseFloat(hres.lowestAsk)
         if(hres.highestBid) facts[oheob.prefix + i + '_bid'] = parseFloat(hres.highestBid)
     }
-    for(const f in facts) quietconsole.log(f,  f + '=' + facts[f])
+    for(const f in facts) quietconsole.logNumericValue(f, <number>facts[f], oheob.printsuppresspct / 100)
     return facts
 }

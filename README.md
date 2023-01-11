@@ -120,6 +120,12 @@ See the tutorials:
 - [Karaka Tutorial #5: Oracles](https://hive.blog/engine/@eturnerx/karaka-tutorial-5-oracles)
 - [Automating Hive with Karaka Tutorial #7: Hive Token Price Tickers (an oracle)](https://peakd.com/@eturnerx/)
 
+### printsuppresspct
+Oracles can be very chatty in the logs if allowed to print out a value whenever something changes. Oracles can have an optional `printsuppresspct` set to a percentage that a value must change since it's last printing before it is output again. The default value of 0.5 - half a percent to emulate past behaviour. Set the value lower to output more often or higher to output less. 0.75 works well enough. The `printsuppresspct` value only affects logging and not the value of facts - the current value is always used to evaluate rules.
+
+e.g. `{ "type": "hiveengineorderbook", "params": { "tokens": [ "DEC" ] }, "printsuppresspct": 0.75}`
+
+
 ## Foreach: basic wildcards for rules
 See the tutorial: [Karaka Tutorial #6: foreach saving you time and space](https://hive.blog/engine/@eturnerx/karaka-tutorial-6-foreach-saving)
 

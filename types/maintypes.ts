@@ -137,6 +137,7 @@ export type Oracles = Oracle[]
 export interface Oracle {
     type: string
     prefix: string
+    printsuppresspct: number
     params: OracleParameters
     comment?: string
 }
@@ -144,6 +145,7 @@ export type OracleParameters = {[index: string]: string|number|string[]}
 export interface OracleCoingecko extends Oracle {
     type: "coingecko",
     prefix: "cg",
+    printsuppresspct: 0.5,
     params: OracleParametersCoingecko
 }
 type OracleParametersCoingecko = {
@@ -153,11 +155,13 @@ type OracleParametersCoingecko = {
 export interface OracleHiveInternalMarket extends Oracle {
     type: "hiveinternal",
     prefix: "hv",
+    printsuppresspct: 0.5,
     params: {}
 }
 export interface OracleHiveEngineOrderBook extends Oracle {
     type: "hiveengineorderbook",
     prefix: "heob",
+    printsuppresspct: 0.5,
     params: OracleParametersHiveEngineOrderBook
 }
 type OracleParametersHiveEngineOrderBook = {

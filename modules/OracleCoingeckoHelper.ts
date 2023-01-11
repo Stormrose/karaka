@@ -7,6 +7,7 @@ const quietconsole: QuietConsole = new QuietConsole('ORACLE-COINGECKO')
 export async function gatherFacts(ocg: OracleCoingecko): Promise<Facts> {
     let facts: Facts = {}
     ocg.prefix = ocg.prefix ?? "cg"
+    ocg.printsuppresspct = ocg.printsuppresspct ?? 0.5,
     ocg.params = ocg.params ?? {}
     const vs_currency: string = ocg.params.vs_currency ?? "usd"
     const ids: string[] = ocg.params.ids ?? [ "hive", "hive_dollar" ]
@@ -28,7 +29,7 @@ export async function gatherFacts(ocg: OracleCoingecko): Promise<Facts> {
                 if(ticker.current_price > 0) {
                     facts[factname] = ticker.current_price
                     // quietconsole.log(factname + " = " + ticker.current_price, factname + " = " + ticker.current_price)
-                    quietconsole.log(factname, factname + " = " + ticker.current_price)
+                    quietconsole.logNumericValue(factname, <number>facts[factname], ocg.printsuppresspct / 100)
                 }
             }
         }
