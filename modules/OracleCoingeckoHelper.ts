@@ -36,7 +36,6 @@ export async function gatherFacts(ocg: OracleCoingecko): Promise<Facts> {
     } catch(e:any) {
         quietconsole.log(e.message, e.message)
     }
-
     return facts
 }
 

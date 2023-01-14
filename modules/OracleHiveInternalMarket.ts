@@ -10,16 +10,20 @@ export async function gatherFacts(ohv: OracleHiveInternalMarket, hiveapi: HiveCl
     ohv.printsuppresspct = ohv.printsuppresspct ?? 0.5,
     ohv.params = ohv.params ?? {}
 
-    const res:any = await hiveapi.call('market_history_api', 'get_ticker', {})
-    if(res) {
-        const symbolh2d: string = ohv.prefix + 'HIVEHBD'
-        const symbold2h: string = ohv.prefix + 'HBDHIVE'
-        if(res.latest) {
-            facts[symbolh2d] = parseFloat(res.latest)
-            facts[symbold2h] = 1 / parseFloat(res.latest)
+    try {
+        const res:any = await hiveapi.call('market_history_api', 'get_ticker', {})
+        if(res) {
+            const symbolh2d: string = ohv.prefix + 'HIVEHBD'
+            const symbold2h: string = ohv.prefix + 'HBDHIVE'
+            if(res.latest) {
+                facts[symbolh2d] = parseFloat(res.latest)
+                facts[symbold2h] = 1 / parseFloat(res.latest)
+            }
+            if(res.lowest_ask) facts[symbolh2d + '_ask'] = parseFloat(res.lowest_ask)
+            if(res.highest_bid) facts[symbolh2d + '_bid'] = parseFloat(res.highest_bid)
         }
-        if(res.lowest_ask) facts[symbolh2d + '_ask'] = parseFloat(res.lowest_ask)
-        if(res.highest_bid) facts[symbolh2d + '_bid'] = parseFloat(res.highest_bid)
+    } catch(e:any) {
+        quietconsole.log(e.message, e.message)
     }
     for(const f in facts) quietconsole.logNumericValue(f, <number>facts[f], ohv.printsuppresspct / 100)
     return facts
