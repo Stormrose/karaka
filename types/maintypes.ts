@@ -20,12 +20,12 @@ export interface HiveEngineLikeChain extends HiveLikeChain {
     sidechainuri: string
 }
 export type ApiNode = string | string[]
-export type Accounts = {[index: string]: (WifActiveKey|WifKeys)}
+export type Accounts = {[index: string]: (WifActiveKey|HiveLikeAccount)}
 export type WifKey = string
 export type WifPostingKey = WifKey
 export type WifActiveKey = WifKey
 export type WifMemoKey = WifKey
-export type WifKeys = {
+export type HiveLikeAccount = {
     wifa: WifActiveKey
     wifp?: WifPostingKey
     wifm?: WifMemoKey

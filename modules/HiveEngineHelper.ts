@@ -1,6 +1,6 @@
 import { Client as HiveClient, PrivateKey as HivePrivateKey } from '@hiveio/dhive'
 import HiveEngine from 'sscjs'
-import { CommandForExecution, Accounts, TransferCommand, WifKeys, StakeCommand, SellCommand, WarnCommand, Facts } from "../types/maintypes"
+import { CommandForExecution, Accounts, TransferCommand, HiveLikeAccount, StakeCommand, SellCommand, WarnCommand, Facts } from "../types/maintypes"
 import QuietConsole from './QuietConsole'
 
 interface HiveEngineLikeTokenInfo {
@@ -32,7 +32,7 @@ export async function gatherFacts(heaccounts: Accounts, _hiveapiclient: HiveClie
                 if(parseFloat(tokeninfo.balance) !== 0) hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_balance'] = parseFloat(tokeninfo.balance)
                 if(parseFloat(tokeninfo.stake) !== 0) hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_stake'] = parseFloat(tokeninfo.stake)
             }
-            if(!(<WifKeys>heaccounts[heaccountname]).silent) quietconsole.log(
+            if(!(<HiveLikeAccount>heaccounts[heaccountname]).silent) quietconsole.log(
                 'accountsummary_' + heaccountname,
                 '@' + heaccountname + ': ' 
                 + (hefacts?.[heaccountname + '.SWAP.HIVE_balance'] ?? '0') + ' SWAP.HIVE / ' 
@@ -257,5 +257,5 @@ export async function executeCommand(cmd: CommandForExecution, orderid: number, 
 }
 
 function getActiveKey(accounts: Accounts, accountname: string): HivePrivateKey {
-    return HivePrivateKey.fromString(<string>(<WifKeys>accounts[accountname]).wifa)
+    return HivePrivateKey.fromString(<string>(<HiveLikeAccount>accounts[accountname]).wifa)
 }

@@ -1,5 +1,5 @@
 import { Client as HiveClient } from '@hiveio/dhive'
-import { KarakaConfig, Facts, CommandForExecutions, WifKeys } from "../types/maintypes"
+import { KarakaConfig, Facts, CommandForExecutions, HiveLikeAccount } from "../types/maintypes"
 import { getScheduleOfConsequentsToExecute } from "./getScheduleOfConsequentsToExecute"
 import * as OracleHelper from './OracleHelper'
 import * as HiveHelper from './HiveHelper'
@@ -16,7 +16,7 @@ export async function mainTick(config: KarakaConfig): Promise<boolean> {
         'mainTick() start.'
     )
 
-    // Create connections
+    // Create connections and initialise accounts
     let hiveapiclient: HiveClient = new HiveClient(config.hive?.apinode ?? 'https://api.hive.blog')
     let hehiveapiclient: HiveClient = hiveapiclient
 
@@ -24,12 +24,21 @@ export async function mainTick(config: KarakaConfig): Promise<boolean> {
         config.hiveengine.apinode = config.hiveengine.apinode ?? config.hive?.apinode ?? 'https://api.hive.blog'
         hehiveapiclient = new HiveClient(config.hiveengine.apinode)
 
-        // Check if accounts
+        // Check from accounts
         for(const accountname of Object.keys(config.hiveengine.accounts)) {
-            let account: WifKeys = <WifKeys>config.hiveengine.accounts[accountname]
+            let account: HiveLikeAccount = <HiveLikeAccount>config.hiveengine.accounts[accountname]
             if(account.from) {
-                //@ts-ignore Can't use account.from to index config
-                config.hiveengine.accounts[accountname] = config[account.from].accounts[accountname]
+                const from: string = account.from
+                // @ts-ignore String can't be used to index config
+                const fromaccount: HiveLikeAccount = <HiveLikeAccount>config[account.from]?.accounts[accountname]
+                if(fromaccount) {
+                    const silent: boolean = account.silent ?? false
+                    account = { ...fromaccount, from, silent }
+                    config.hiveengine.accounts[accountname] = account
+                } else {
+                    quietconsole.log('HIVEENGINE: Unknown from account ' + accountname, 
+                                     'HIVEENGINE: Unknown from account ' + accountname
+                )}
             }
         }
     }

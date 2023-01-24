@@ -1,5 +1,5 @@
 import { Client as HiveClient, PrivateKey as HivePrivateKey, Asset as HiveAsset, ExtendedAccount as HiveExtendedAccount } from '@hiveio/dhive'
-import { CommandForExecution, Accounts, TransferCommand, WifKeys, StakeCommand, SellCommand, DepositCommand, WarnCommand, Facts } from "../types/maintypes"
+import { CommandForExecution, Accounts, TransferCommand, HiveLikeAccount, StakeCommand, SellCommand, DepositCommand, WarnCommand, Facts } from "../types/maintypes"
 import QuietConsole from './QuietConsole'
 
 const quietconsole: QuietConsole = new QuietConsole('HIVE')
@@ -18,7 +18,7 @@ export async function gatherFacts(hiveaccounts: Accounts, hiveapiclient: HiveCli
             hivefacts[account.name + '.' + 'hbd_savings'] = parseFloat((<string>account.savings_hbd_balance).split(' ')[0])
             hivefacts[account.name + '.' + 'reputation'] = parseFloat(<string>account.reputation)
             hivefacts[account.name + '.' + 'voting_power'] = account.voting_power
-            if(!(<WifKeys>hiveaccounts[account.name]).silent) quietconsole.log(
+            if(!(<HiveLikeAccount>hiveaccounts[account.name]).silent) quietconsole.log(
                 'accountsummary_' + account.name,
                 '@' + account.name + ': ' + account.balance + ', ' + account.hbd_balance
             )
@@ -232,7 +232,7 @@ export async function executeCommand(cmd: CommandForExecution, orderid: number, 
 }
 
 function getActiveKey(accounts: Accounts, accountname: string): HivePrivateKey {
-    return HivePrivateKey.fromString(<string>(<WifKeys>accounts[accountname]).wifa)
+    return HivePrivateKey.fromString(<string>(<HiveLikeAccount>accounts[accountname]).wifa)
 }
 
 // function AmountAndAssetStringToObject(amount: any, assetstr: string): OperationHiveAsset {
