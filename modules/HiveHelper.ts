@@ -6,11 +6,21 @@ const quietconsole: QuietConsole = new QuietConsole('HIVE')
 
 export async function gatherFacts(hiveaccounts: Accounts, hiveapiclient: HiveClient): Promise<Facts> {
     const hivefacts: {[index: string]: string|number|HiveAsset} = {}
-    try {
-        const hiveaccountnames: string[] = Object.keys(hiveaccounts)
-        quietconsole.log('fetch', 'Fetching accounts @' + hiveaccountnames.join(', @'))    
-        let hiveaccountdata: HiveExtendedAccount[] = await hiveapiclient.database.getAccounts(hiveaccountnames)
-        for(const account of hiveaccountdata) {
+    const hiveaccountnames: string[] = Object.keys(hiveaccounts)
+    let hiveaccountdata: HiveExtendedAccount[] = []
+
+    for(let i = 0; i < hiveaccountnames.length; i += 5) {
+        const batch = hiveaccountnames.slice(i, i + 5)
+        quietconsole.log('fetch' + batch.join(', @'), 'Fetching accounts @' + batch.join(', @')) 
+        try {
+            const hiveaccountdatas: HiveExtendedAccount[] = await hiveapiclient.database.getAccounts(batch)
+            hiveaccountdata = [ ...hiveaccountdata, ...hiveaccountdatas ]
+        } catch(e:any) {
+            quietconsole.log(batch.join(', @') + e.message, 'Fetch ERROR' + batch.join(', @') + e.message)
+        }    
+    }
+    for(const account of hiveaccountdata) {
+        try {
             hivefacts[account.name + '.' + 'hive_balance'] = parseFloat((<string>account.balance).split(' ')[0])
             hivefacts[account.name + '.' + 'hbd_balance'] = parseFloat((<string>account.hbd_balance).split(' ')[0])
             hivefacts[account.name + '.' + 'vesting_shares'] = parseFloat((<string>account.vesting_shares).split(' ')[0])
@@ -18,13 +28,15 @@ export async function gatherFacts(hiveaccounts: Accounts, hiveapiclient: HiveCli
             hivefacts[account.name + '.' + 'hbd_savings'] = parseFloat((<string>account.savings_hbd_balance).split(' ')[0])
             hivefacts[account.name + '.' + 'reputation'] = parseFloat(<string>account.reputation)
             hivefacts[account.name + '.' + 'voting_power'] = account.voting_power
-            if(!(<HiveLikeAccount>hiveaccounts[account.name]).silent) quietconsole.log(
-                'accountsummary_' + account.name,
-                '@' + account.name + ': ' + account.balance + ', ' + account.hbd_balance
-            )
+            if(!(<HiveLikeAccount>hiveaccounts[account.name]).silent) {
+                quietconsole.log(
+                    'accountsummary_' + account.name,
+                    '@' + account.name + ': ' + account.balance + ', ' + account.hbd_balance
+                )
+            }
+        } catch(e:any) {
+            quietconsole.log(account.name ?? '' + ' ' + e.message, "ERROR: HiveHelper, fact for " + account.name ?? '' + ': ' + e.message)
         }
-    } catch(e:any) {
-        quietconsole.log(e.message, e.message)
     }
     return hivefacts
 }
