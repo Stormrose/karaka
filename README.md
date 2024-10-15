@@ -101,6 +101,14 @@ pairs: message
 
 This command outputs a message to the log. The message must be enclosed in backslash-double-quotes. Be aware that Karaka suppresses frequent repetition in logs.
 
+### addliquidity
+`addliquidity (eturnerx.DEC_balance) DEC from eturnerx topool 'DEC:SWAP.HIVE'`
+prefix: addliquidity, amount, symbol
+paris: from, topool
+
+This command adds liquidity in the amount of `symbol` to the liquidity pool. Currently only supports specifying the amount of the first (base) token in the pair and assumes you have sufficient balance of the second (quote) token. Consider using a check in your `if` clause to check there is sufficient quote token balance; the prices supplied by the hive-engine token oracle should be within enough margin to be useful.
+
+
 ## Tutorials
 Here are some tutorials that explain scenarios and features using examples.
 - [Karaka Tutorial #1: A Basic Tutorial config.json example](https://hive.blog/engine/@eturnerx/karaka-tutorial-1-a-basic-tutorial-configjson-example)

@@ -1,6 +1,6 @@
 import { Client as HiveClient, PrivateKey as HivePrivateKey } from '@hiveio/dhive'
 import HiveEngine from 'sscjs'
-import { CommandForExecution, Accounts, TransferCommand, HiveLikeAccount, StakeCommand, SellCommand, WarnCommand, Facts } from "../types/maintypes"
+import { CommandForExecution, Accounts, TransferCommand, HiveLikeAccount, StakeCommand, SellCommand, WarnCommand, AddLiquidityCommand, Facts } from "../types/maintypes"
 import QuietConsole from './QuietConsole'
 
 interface HiveEngineLikeTokenInfo {
@@ -16,12 +16,14 @@ interface HiveEngineLikeTokenInfo {
 }
 type HiveEngineLikeTokenInfos = HiveEngineLikeTokenInfo[]
 const quietconsole: QuietConsole = new QuietConsole('HIVEENGINE')
+let hiveengine: any
 
 export async function gatherFacts(heaccounts: Accounts, _hiveapiclient: HiveClient, sidechainuri: string): Promise<Facts> {
     const hefacts: {[index: string]: string|number} = {}
+    cachedPoolStats.clear()
     try {
         //@ts-ignore Not constructible
-        const hiveengine = new HiveEngine(sidechainuri)
+        hiveengine = new HiveEngine(sidechainuri)
         // console.log('HIVEENGINE: Gathering facts.')
         const heaccountnames: string[] = Object.keys(heaccounts)
         quietconsole.log('fetch', 'Fetching accounts @' + heaccountnames.join(', @'))
@@ -245,6 +247,55 @@ export async function executeCommand(cmd: CommandForExecution, orderid: number, 
             cmd.success = false
             break
 
+        case 'addliquidity':
+            let alc: AddLiquidityCommand = <AddLiquidityCommand>cmd.command
+            while(!cmd.success && cmd.retries > 0 && retriable) {
+                try {
+                    status = 'Calculating quote quantity'
+                    const quoteQuantityN = await calculateLiquidityQuoteQuantity(alc.topool, parseFloat(<string>(alc.amount)))
+                    const quoteQuantity: string = quoteQuantityN.toFixed(5)
+                    status = 'Building addliquidity object.'
+                    retriable = false
+                    orderid++
+                    cmdobj = {
+                        id: 'ssc-mainnet-hive',
+                        required_auths: [ alc.from ],
+                        required_posting_auths: [],
+                        json: JSON.stringify({
+                            contractName: "marketpools", contractAction: "addLiquidity", contractPayload: {
+                                tokenPair: alc.topool,
+                                baseQuantity: alc.amount,
+                                quoteQuantity: quoteQuantity,
+                                maxSlippage: "1",
+                                maxDeviation: "0"
+                        }})
+                    }
+                    status = 'Getting active key.'
+                    wifa = getActiveKey(accounts, alc.from)
+                    status = 'Broadcasting addliquidity operation.'
+                    retriable = true
+                    if(execute) await hiveapiclient.broadcast.json(cmdobj, wifa)
+                    // console.log('EXECUTE: ' + JSON.stringify(cmdobj))
+                    status = 'Logging success.'
+                    retriable = false
+                    quietconsole.log(
+                        undefined,
+                        (execute ? '' : 'EXECUTION-SUPPRESSED: ') +
+                        'ADDLIQUIDITY ' + alc.amount + ' ' + alc.assettype + ' to ' + alc.topool + ' from ' + alc.from
+                    )
+                    cmd.success = true
+                } catch(e){
+                    console.log('Command failed: ' + cmd.command.command + " in \n\t" + cmd.name + "\n\t" + JSON.stringify(cmd.command))
+                    console.log('\t' + JSON.stringify(cmdobj))
+                    console.log('STATUS: ' + status)
+                    console.log(e)
+                    if(retriable) console.log(cmd.retries + ' retries remain.')
+                    else console.log('Will not retry.')
+                    cmd.retries--
+                }
+            }
+            break
+
         default:
             quietconsole.log(
                 'Command not recognised: ' + cmd.command.command + " in \n\t" + cmd.name + "\n\t" + JSON.stringify(cmd.command),
@@ -258,4 +309,34 @@ export async function executeCommand(cmd: CommandForExecution, orderid: number, 
 
 function getActiveKey(accounts: Accounts, accountname: string): HivePrivateKey {
     return HivePrivateKey.fromString(<string>(<HiveLikeAccount>accounts[accountname]).wifa)
+}
+
+const cachedPoolStats = new Map<string, Promise<any>>()
+async function getPoolStats(poolname: string): Promise<any> {
+  if (!hiveengine) return Promise.reject('No HiveEngine Connection established');
+
+  // Check if a request for this pool is already in progress
+  if (cachedPoolStats.has(poolname)) {
+    return cachedPoolStats.get(poolname);
+  }
+
+  // If no request is in progress, create a new Promise and cache it
+  const p = hiveengine.findOne('marketpools', 'pools', { "tokenPair": poolname.toUpperCase() })
+  cachedPoolStats.set(poolname, p)
+  const r = await p
+  cachedPoolStats.set(poolname, r)
+  return r
+}
+
+async function calculateLiquidityQuoteQuantity(poolname: string, baseAmount: number): Promise<number> {
+    const ps = await getPoolStats(poolname)
+
+    const reserveA = parseFloat(ps.baseQuantity)
+    const reserveB = parseFloat(ps.quoteQuantity)
+    const ratiobovera = reserveB / reserveA
+
+    const quoteQuantity = (Math.trunc((ratiobovera * baseAmount) * 100000) / 100000) + 0.00001
+    // console.log(`QQ: ${reserveA} / ${reserveB} = ${ratiobovera}`)
+    // console.log(`QQ: ${quoteQuantity} = ${ratiobovera} * ${baseAmount}`)
+    return Promise.resolve(quoteQuantity)
 }

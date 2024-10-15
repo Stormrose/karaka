@@ -101,6 +101,11 @@ export interface WarnCommand extends ConsequentCommand {
     message: string
     hassideeffects: false
 }
+export interface AddLiquidityCommand extends ConsequentCommandWithAmount {
+    command: "addliquidity"
+    topool: string
+    from: string
+}
 export type CommandForExecutions = CommandForExecution[]
 export interface CommandForExecution {
     name: string
@@ -118,7 +123,8 @@ export const DefaultTokenDecimals: { [index: string]: number } = {
     'HIVE': 3, 'HBD': 3,
     'STEEM': 3, 'SBD': 3,
     'BEE': 8, 'SWAP.HIVE': 3, 'SWAP.HBD': 3,  // SWAP.HIVE and SWAP.HBD are 3dp to reduce rounding errors on withdrawals
-    'PAL': 3, 'LEO': 3, 'VIBES': 8
+    'PAL': 3, 'LEO': 3, 'VIBES': 8,
+    'ZING': 3, 'FISH': 3, 'CHIPS': 3
 }
 export const AssetToNai: {[index: string]: { [index: string]: number|string}} = {
     'HBD':  { 'nai': '@@000000013', 'precision': 3 },

@@ -1,5 +1,5 @@
 import compileExpression from "./filtrex"
-import { BuyCommand, ConsequentCommand, ConsequentCommandString, DefaultTokenExchangeMap, SellCommand, StakeCommand, TransferCommand, DepositCommand, WarnCommand } from "../types/maintypes"
+import { BuyCommand, ConsequentCommand, ConsequentCommandString, DefaultTokenExchangeMap, SellCommand, StakeCommand, TransferCommand, DepositCommand, WarnCommand, AddLiquidityCommand } from "../types/maintypes"
 
 export function parseConsequentCommand(c: ConsequentCommandString): ConsequentCommand {
 
@@ -69,6 +69,7 @@ export function parseConsequentCommand(c: ConsequentCommandString): ConsequentCo
     let memo: string = ''
     let toassettype = ''
     let at = ''
+    let topool: string = ''
     while(tidx < tokens2.length) {
         switch(tokens2[tidx]) {
             case 'to':
@@ -103,6 +104,12 @@ export function parseConsequentCommand(c: ConsequentCommandString): ConsequentCo
             case 'at':
                 tidx++
                 at = tokens2[tidx]
+                break
+            
+            case 'topool':
+                tidx++
+                topool = tokens2[tidx].toUpperCase()
+                if(topool.startsWith("'") && topool.endsWith("'")) topool = topool.slice(1,-1)
                 break
 
             default:
@@ -165,6 +172,10 @@ export function parseConsequentCommand(c: ConsequentCommandString): ConsequentCo
 
         case 'warn':
             r = <WarnCommand>{ command, message: memo, hassideeffects }
+            break
+
+        case 'addliquidity':
+            r = <AddLiquidityCommand>{ command, amount, assettype, from, topool, hassideeffects}
             break
 
         default:
