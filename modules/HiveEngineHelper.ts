@@ -1,6 +1,6 @@
 import { Client as HiveClient, PrivateKey as HivePrivateKey } from '@hiveio/dhive'
 import HiveEngine from 'sscjs'
-import { CommandForExecution, Accounts, TransferCommand, HiveLikeAccount, StakeCommand, SellCommand, WarnCommand, AddLiquidityCommand, Facts } from "../types/maintypes"
+import { CommandForExecution, Accounts, TransferCommand, HiveLikeAccount, StakeCommand, UnStakeCommand, SellCommand, WarnCommand, AddLiquidityCommand, Facts } from "../types/maintypes"
 import QuietConsole from './QuietConsole'
 
 interface HiveEngineLikeTokenInfo {
@@ -30,12 +30,11 @@ export async function gatherFacts(heaccounts: Accounts, _hiveapiclient: HiveClie
         for(const heaccountname of heaccountnames) {
             let heaccountdata = <HiveEngineLikeTokenInfos>(await hiveengine.find('tokens', 'balances', { account: heaccountname }))
             for(const tokeninfo of heaccountdata) {
-                // hefacts[heaccountname] = JSON.stringify(heaccountdata)
                 if(parseFloat(tokeninfo.balance) !== 0) hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_balance'] = parseFloat(tokeninfo.balance)
-                if(parseFloat(tokeninfo.stake) !== 0) hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_stake'] = parseFloat(tokeninfo.stake)
-                if(parseFloat(tokeninfo.pendingUnstake) !== 0) {
-                    hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_unstaking'] = parseFloat(tokeninfo.stake)
-                    hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_netstake'] = <number>hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_stake'] - <number>hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_unstaking']
+                if(tokeninfo.stake && parseFloat(tokeninfo.stake) > 0) hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_stake'] = hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_netstake'] = parseFloat(tokeninfo.stake)
+                if(tokeninfo.pendingUnstake && parseFloat(tokeninfo.pendingUnstake) > 0) {
+                    hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_unstaking'] = parseFloat(tokeninfo.pendingUnstake)
+                    hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_netstake'] = Math.trunc((parseFloat(tokeninfo.stake) - parseFloat(tokeninfo.pendingUnstake)) * 1000) / 1000
                 }
             }
             if(!(<HiveLikeAccount>heaccounts[heaccountname]).silent) quietconsole.log(
@@ -149,6 +148,47 @@ export async function executeCommand(cmd: CommandForExecution, orderid: number, 
             }
             break
 
+            case 'unstake':
+                let uc: UnStakeCommand = <UnStakeCommand>cmd.command
+                while(!cmd.success && cmd.retries > 0 && retriable) {
+                    try {
+                        status = 'Buidling unstaking object.'
+                        retriable = false
+                        cmdobj = {
+                            id: 'ssc-mainnet-hive',
+                            required_auths: [ uc.from ],
+                            required_posting_auths: [],
+                            json: JSON.stringify({
+                                contractName: "tokens", contractAction: "unstake", contractPayload: {
+                                    symbol: uc.assettype,
+                                    quantity: parseFloat((<string>uc.amount)).toFixed(3)
+                            }})
+                        }
+                        status = 'Getting active key.'
+                        wifa = getActiveKey(accounts, uc.from)
+                        status = 'Broadcasting stake operation.'
+                        retriable = true
+                        if(execute) await hiveapiclient.broadcast.json(cmdobj, wifa)
+                        status = 'Logging success.'
+                        retriable = false
+                        quietconsole.log(
+                            undefined,
+                            (execute ? '' : 'EXECUTION-SUPPRESSED: ') +
+                            'UNSTAKE ' + uc.amount + ' ' + uc.assettype + ' from ' + uc.from + '.'
+                        )
+                        cmd.success = true
+                    } catch(e){
+                        console.log('Command failed: ' + cmd.command.command + " in \n\t" + cmd.name + "\n\t" + JSON.stringify(cmd.command))
+                        console.log('\t' + JSON.stringify(cmdobj))
+                        console.log('STATUS: ' + status)
+                        console.log(e)
+                        if(retriable) console.log(cmd.retries + ' retries remain.')
+                        else console.log('Will not retry.')
+                        cmd.retries--
+                    }
+                }
+                break
+    
         case 'sell':
             let mc: SellCommand = <SellCommand>cmd.command
             while(!cmd.success && cmd.retries > 0 && retriable) {

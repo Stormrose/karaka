@@ -224,6 +224,7 @@ export async function executeCommand(cmd: CommandForExecution, orderid: number, 
 
         case 'buy':
         case 'withdraw':
+        case 'unstake':
             quietconsole.log(
                 'Command not supported: ' + cmd.command.command + " in \n\t" + cmd.name + "\n\t" + JSON.stringify(cmd.command),
                 'Command not supported: ' + cmd.command.command + " in \n\t" + cmd.name + "\n\t" + JSON.stringify(cmd.command)

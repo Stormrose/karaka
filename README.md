@@ -71,6 +71,13 @@ pairs: to, from
 If only one of `to` or `from` is specified, then the missing parameter value is taken from the other to improve the readability of commands, for example:
 `stake 1.000 HIVE to eturnerx` and `stake 1.000 HIVE from eturnerx` are equivalent commands.
 
+### unstake
+`unstake 1.000 BEE from eturnerx`
+prefix: unstake, amount, symbol
+pairs: from
+
+Unstakes Hive-Engine tokens. Not implemented for the Hive main-chain.
+
 ### sell
 `sell ((eturnerx.PAL_balance - palreserve) * 0.5) PAL for SWAP.HIVE from eturnerx at market`
 prefix: stake amount symbol
@@ -108,6 +115,12 @@ prefix: addliquidity, amount, symbol
 paris: from, topool
 
 This command adds liquidity in the amount of `symbol` to the liquidity pool. Currently only supports specifying the amount of the first (base) token in the pair and assumes you have sufficient balance of the second (quote) token. Consider using a check in your `if` clause to check there is sufficient quote token balance; the prices supplied by the hive-engine token oracle should be within enough margin to be useful.
+
+Only valid on the Hive-Engine sidechain; there is no equivalent command on the hive chain.
+
+
+### unstake
+
 
 
 ## Tutorials

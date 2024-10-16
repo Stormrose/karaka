@@ -72,6 +72,10 @@ export interface StakeCommand extends ConsequentCommandWithAmount {
     to: string
     from: string
 }
+export interface UnStakeCommand extends ConsequentCommandWithAmount {
+    command: "unstake"
+    from: string
+}
 export interface SellCommand extends ConsequentCommandWithAmount {
     command: "sell"
     from: string

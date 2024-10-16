@@ -1,5 +1,5 @@
 import compileExpression from "./filtrex"
-import { BuyCommand, ConsequentCommand, ConsequentCommandString, DefaultTokenExchangeMap, SellCommand, StakeCommand, TransferCommand, DepositCommand, WarnCommand, AddLiquidityCommand } from "../types/maintypes"
+import { BuyCommand, ConsequentCommand, ConsequentCommandString, DefaultTokenExchangeMap, SellCommand, StakeCommand, UnStakeCommand, TransferCommand, DepositCommand, WarnCommand, AddLiquidityCommand } from "../types/maintypes"
 
 export function parseConsequentCommand(c: ConsequentCommandString): ConsequentCommand {
 
@@ -138,6 +138,11 @@ export function parseConsequentCommand(c: ConsequentCommandString): ConsequentCo
             // else defaults to unknown TODO consider throwing an error
             break
 
+        case 'unstake':
+                if(from !== '') r = <UnStakeCommand>{ command, amount, assettype, from, hassideeffects }
+                // else defaults to unknown TODO consider throwing an error
+                break
+    
         case 'sell':
             toassettype = toassettype === '' ? DefaultTokenExchangeMap[assettype] : toassettype
             r = <SellCommand>{ command, amount, assettype, from, toassettype, at, hassideeffects }
