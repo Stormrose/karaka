@@ -36,8 +36,9 @@ Accounts can be listed with just minimally a string, which would be the WIFA - o
 need to specifiy multiple keys. Account balances are reported whenever they change. You can suppress the displaying of a particular account by adding the property `"silent": true` - useful for exchange accounts.
 
 ## Facts
-A fact generally takes the form of `accountname`.`tokensymbol`_`type` where type is balance or stake. For example, `eturnerx.hive_balance` is the fact with the value of eturnerx's liquid hive balance.
+A fact generally takes the form of `accountname`.`tokensymbol`_`type` where type is `balance` or `stake`. For example, `eturnerx.hive_balance` is the fact with the value of eturnerx's liquid hive balance.
 GOTCHA: account names with a hyphen-in-them must use 'single quotes' around the fact name.
+Additionall, Hive-engine provides the addtional types `unstaking` and `netstake` where unstaking is the amount of tokens that are pending unstake and netstake is the current stake less the number of tokens pending unstaking. For example, `eturnerx.BEE_netstake`.
 There is a per-blockchain `constants` section where the user can hardcode facts. Constants simplify the administration of rules that reuse the same values, such as setting the reserve (keep-back) levels of a particular token. Facts generally are scoped to within chains, but facts can be copied from other chains using `imports` or from external sources using `oracles`. Imports and oracles are covered below.
 
 ## Commands

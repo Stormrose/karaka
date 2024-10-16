@@ -35,7 +35,7 @@ export async function gatherFacts(hiveaccounts: Accounts, hiveapiclient: HiveCli
                 )
             }
         } catch(e:any) {
-            quietconsole.log(account.name ?? '' + ' ' + e.message, "ERROR: HiveHelper, fact for " + account.name ?? '' + ': ' + e.message)
+            quietconsole.log(account.name ?? '' + ' ' + e.message, "ERROR: HiveHelper, fact for " + (account.name ?? '') + ': ' + e.message)
         }
     }
     return hivefacts
