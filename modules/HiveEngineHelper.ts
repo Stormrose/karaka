@@ -33,6 +33,10 @@ export async function gatherFacts(heaccounts: Accounts, _hiveapiclient: HiveClie
                 // hefacts[heaccountname] = JSON.stringify(heaccountdata)
                 if(parseFloat(tokeninfo.balance) !== 0) hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_balance'] = parseFloat(tokeninfo.balance)
                 if(parseFloat(tokeninfo.stake) !== 0) hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_stake'] = parseFloat(tokeninfo.stake)
+                if(parseFloat(tokeninfo.pendingUnstake) !== 0) {
+                    hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_unstaking'] = parseFloat(tokeninfo.stake)
+                    hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_netstake'] = <number>hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_stake'] - <number>hefacts[tokeninfo.account + '.' + tokeninfo.symbol + '_unstaking']
+                }
             }
             if(!(<HiveLikeAccount>heaccounts[heaccountname]).silent) quietconsole.log(
                 'accountsummary_' + heaccountname,
