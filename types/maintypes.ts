@@ -151,7 +151,7 @@ export interface Oracle {
     params: OracleParameters
     comment?: string
 }
-export type OracleParameters = {[index: string]: string|number|string[]}
+export type OracleParameters = {[index: string]: any}
 export interface OracleCoingecko extends Oracle {
     type: "coingecko",
     prefix: "cg",
