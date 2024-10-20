@@ -293,29 +293,42 @@ export async function executeCommand(cmd: CommandForExecution, orderid: number, 
 
         case 'addliquidity':
             let alc: AddLiquidityCommand = <AddLiquidityCommand>cmd.command
+            let quoteQuantity = alc.amount
+            let baseQuantity = alc.amount
+
+            status = 'Calculating quote:base quantity'
+            if(alc.topool.startsWith(alc.assettype)) {
+                // Token is base, so calculate the quote quantity
+                const quoteQuantityN = await calculateLiquidityQuoteQuantity(alc.topool, parseFloat(<string>(alc.amount)))
+                quoteQuantity = quoteQuantityN.toFixed(5)
+            } else if(alc.topool.endsWith(alc.assettype)) {
+                // Token is quote, so calculate the base quantity
+                const baseQuantityN = await calculateLiquidityBaseQuantity(alc.topool, parseFloat(<string>(alc.amount)))
+                baseQuantity = baseQuantityN.toFixed(5)
+            } else {
+                // Token is not part of the pool, throw an error
+                console.log('Token not in pool: ' + cmd.name + "\n\t" + JSON.stringify(cmd.command))
+                return
+            }
+            status = 'Building addliquidity object.'
+            cmdobj = {
+                id: 'ssc-mainnet-hive',
+                required_auths: [ alc.from ],
+                required_posting_auths: [],
+                json: JSON.stringify({
+                    contractName: "marketpools", contractAction: "addLiquidity", contractPayload: {
+                        tokenPair: alc.topool,
+                        baseQuantity: baseQuantity,
+                        quoteQuantity: quoteQuantity,
+                        maxSlippage: "1",
+                        maxDeviation: "0"
+                }})
+            }
+            status = 'Getting active key.'
+            wifa = getActiveKey(accounts, alc.from)
             while(!cmd.success && cmd.retries > 0 && retriable) {
                 try {
-                    status = 'Calculating quote quantity'
-                    const quoteQuantityN = await calculateLiquidityQuoteQuantity(alc.topool, parseFloat(<string>(alc.amount)))
-                    const quoteQuantity: string = quoteQuantityN.toFixed(5)
-                    status = 'Building addliquidity object.'
-                    retriable = false
                     orderid++
-                    cmdobj = {
-                        id: 'ssc-mainnet-hive',
-                        required_auths: [ alc.from ],
-                        required_posting_auths: [],
-                        json: JSON.stringify({
-                            contractName: "marketpools", contractAction: "addLiquidity", contractPayload: {
-                                tokenPair: alc.topool,
-                                baseQuantity: alc.amount,
-                                quoteQuantity: quoteQuantity,
-                                maxSlippage: "1",
-                                maxDeviation: "0"
-                        }})
-                    }
-                    status = 'Getting active key.'
-                    wifa = getActiveKey(accounts, alc.from)
                     status = 'Broadcasting addliquidity operation.'
                     retriable = true
                     if(execute) await hiveapiclient.broadcast.json(cmdobj, wifa)
@@ -383,4 +396,16 @@ async function calculateLiquidityQuoteQuantity(poolname: string, baseAmount: num
     // console.log(`QQ: ${reserveA} / ${reserveB} = ${ratiobovera}`)
     // console.log(`QQ: ${quoteQuantity} = ${ratiobovera} * ${baseAmount}`)
     return Promise.resolve(quoteQuantity)
+}
+
+async function calculateLiquidityBaseQuantity(poolname: string, quoteAmount: number): Promise<number> {
+    const ps = await getPoolStats(poolname);
+
+    const reserveA = parseFloat(ps.baseQuantity);
+    const reserveB = parseFloat(ps.quoteQuantity);
+    const ratioaoverb = reserveA / reserveB;
+
+    const baseQuantity = (Math.trunc((quoteAmount * ratioaoverb) * 100000) / 100000) + 0.00001;
+
+    return Promise.resolve(baseQuantity);
 }
