@@ -20,6 +20,7 @@ export default function compileExpression(expression: string, extraFunctions?: {
         random: Math.random,
         round: Math.round,
         sqrt: Math.sqrt,
+        clamp: clamp,
     }
     if (extraFunctions) {
         for (const fname of Object.keys(extraFunctions)) {
@@ -191,4 +192,8 @@ function filtrexParser() {
         }
     };
     return new Parser(grammar);
+}
+
+function clamp(min: number, value: number, max: number): number {
+    return Math.max(min, Math.min(value, max))
 }
