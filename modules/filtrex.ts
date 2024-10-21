@@ -4,7 +4,10 @@
  * MIT License.
  * -Joe Walnes
  */
-/* Updates to make into an importable typescript module by eturnerx: March 2021 */
+/* Updates:
+ * 2021 Mar made in an importable typescript module by eturnerx
+ * 2024 Oct added a clamp(min, value, max) function to the parser by eturnerx.
+*/
 
 import { Parser } from 'jison'
 export let filtrexparser: any
@@ -194,6 +197,7 @@ function filtrexParser() {
     return new Parser(grammar);
 }
 
+// Clamp function added 2024 October by eturnerx
 function clamp(min: number, value: number, max: number): number {
     return Math.max(min, Math.min(value, max))
 }
